@@ -3,6 +3,7 @@ global.request = request.defaults({followRedirect: false, followAllRedirects: fa
 global.fakeJar = (global.fakeJar === undefined) ? {} : global.fakeJar;
 
 global.marketplace = {};
+global.categories = {};
 
 require('events').EventEmitter.prototype._maxListeners = 100;
 
@@ -194,6 +195,7 @@ api.prototype.getAllAssets = function() {
 	module.exports.getAssetsInCategory('assets/environments', 0, false, function (json) {
 		
 		var categoriesLeft = json.categories.length;
+		global.categories = json.categories;
 				
 		// Build Category List
 		for (var i = 0; i < json.categories.length; ++i) {
