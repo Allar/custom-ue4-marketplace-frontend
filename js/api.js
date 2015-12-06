@@ -1,10 +1,8 @@
 global.request = (global.request === undefined) ? require('request') : global.request;
 global.request = request.defaults({followRedirect: false, followAllRedirects: false});
+global.fakeJar = (global.fakeJar === undefined) ? {} : global.fakeJar;
 
-// Get the current window
-global.win = global.window.nwDispatcher.requireNwGui().Window.get();
-
-global.fakeJar = {};
+global.marketplace = {};
 
 require('events').EventEmitter.prototype._maxListeners = 100;
 
@@ -25,7 +23,6 @@ api.prototype.getFakeJarCookieString = function () {
 	for(var key in global.fakeJar) {
     	cookieString += key + '=' + global.fakeJar[key] + '; ';
 	}
-	console.log(cookieString);
 	return cookieString;
 }
 
@@ -49,7 +46,6 @@ api.prototype.getLogin = function () {
 	request.get(opts, function (error, response, body) {
 		module.exports.updateFakeJar(response.headers['set-cookie']);		
 		module.exports.rebuildLogin(body);
-		console.log(fakeJar);
 	});
 }
 
@@ -60,8 +56,7 @@ api.prototype.getTracked = function () {
 	};
 	
 	request.get(opts, function (error, response, body) {
-		module.exports.updateFakeJar(response.headers['set-cookie']);		
-		console.log(fakeJar);
+		module.exports.updateFakeJar(response.headers['set-cookie']);
 	});
 }
 
@@ -121,7 +116,7 @@ api.prototype.authorize = function () {
 api.prototype.exchange = function (code) {
 	var opts = {
 		uri: 'https://www.unrealengine.com/exchange',
-		headers: { Cookie:module.exports.getFakeJarCookieString(), 'connection': 'keep-alive', 'Upgrade-Insecure-Requests': '1', 'Referer': 'https://accounts.unrealengine.com/login/index?client_id=43e2dea89b054198a703f6199bee6d5b' },
+		headers: { Cookie:module.exports.getFakeJarCookieString() },
 		qs: { code: code }
 	};
 	
@@ -130,10 +125,90 @@ api.prototype.exchange = function (code) {
 		
 		if (response.statusCode == 302) {
 			$('body').html('Successfully Completed Auth Chain!');
+			window.location.href = "./marketplace.html";
 		} else {
 			$('body').html(JSON.stringify(response, null, ' '));
 		}
 	});
+}
+
+// Only exposed marketplace asset api I could find
+// Grabs 25 assets for specificied category
+// Also lists all available categories
+// Takes function 'cb' with signature (json, path, finished)
+// json: The json object Epic returned for that single fetch
+// path: The category path that was fetched
+// finished: bool whether that category is finished fetching
+api.prototype.getAssetsInCategory = function(category, start, addToTable, cb) {
+	var opts = {
+		uri: 'https://www.unrealengine.com/assets/ajax-get-categories',
+		form: {category: category, start: start},
+		headers: { Cookie:module.exports.getFakeJarCookieString() },
+	};
+	
+	request.post(opts, function(error, response, body) {
+		module.exports.updateFakeJar(response.headers['set-cookie']);
+		
+		if (response.statusCode == 200) {
+			var json = JSON.parse(body);
+			var finished = false;
+			if (addToTable == true) {
+				
+				// Add category definition if it doesn't exist (it should though)
+				if (marketplace[json.categoryPath] === undefined) {
+					marketplace[json.categoryPath] = { name: json.category.name };
+				}
+				
+				// Add first set of assets to this category definition
+				if (marketplace[json.categoryPath].assets === undefined) {
+					marketplace[json.categoryPath].assets = json.assets;
+				} else { // Add assets to category definition
+					json.assets.forEach(function(v) {marketplace[json.categoryPath].assets.push(v);});
+				}
+				
+				// If this is the first grab for assets of this category, kick off grabbing the rest
+				if (start == 0) {
+					marketplace[json.categoryPath].assetCount = json.assetCount;
+					for (var i = 0; i < Math.floor((json.assetCount-1) / json.assetPerPage); ++i) {
+						module.exports.getAssetsInCategory(json.categoryPath, (i+1)*json.assetPerPage, true, function (nextjson, nextpath, nextfinished) {
+							cb(nextjson, nextpath, nextfinished);
+						});	
+					}
+				}
+				
+				if (marketplace[json.categoryPath].assets.length == marketplace[json.categoryPath].assetCount) {
+					console.log("Done getting assets for category: " + json.categoryPath);
+					finished = true;
+				}
+			}
+			cb(json, json.categoryPath, finished);
+		} else {
+			console.error(body);
+		}
+	});
+}
+
+api.prototype.getAllAssets = function() {
+	global.fetching = true;
+	// Grabbing environments will allow us to get a full list of categories
+	module.exports.getAssetsInCategory('assets/environments', 0, false, function (json) {
+		
+		var categoriesLeft = json.categories.length;
+				
+		// Build Category List
+		for (var i = 0; i < json.categories.length; ++i) {
+			marketplace[json.categories[i].path] = { name: json.categories[i].name };
+			module.exports.getAssetsInCategory(json.categories[i].path, 0, true, function (json, path, finished) { 
+				if(finished) {
+					categoriesLeft--;
+					if (categoriesLeft == 0) {
+						global.fetching = false;
+					}
+				}
+			});
+		}		
+	});
+	
 }
 
 module.exports = new api();
