@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="css/style.css" rel="stylesheet">
+    <script src="./js/jquery.js"></script>
+    <script src="./js/jquery.serialize-object.min.js"></script>
+    <script>
+    var api = require('./js/api.js');
+    var Handlebars = require('handlebars');
+    
+    global.assetCollection = [];
+    
+    var startFetchCheck = function() {
+      if (global.fetching == false) {
+        onAllAssetsFetched();
+      } else {
+        window.setTimeout(startFetchCheck, 1000);
+      }
+    }
+    
+    var onAllAssetsFetched = function() {
+      $("#loading").hide();
+      
+       console.log(global.marketplace);
+      
+      for (var category in global.marketplace) {
+        var cat_context = {path: category, info: global.marketplace[category]};
+        var cat_template = Handlebars.compile($('#category-template').html());         
+        $('#categories').append(cat_template(cat_context));
+      }
+      
+    }
+    
+    $(document).ready(function() {
+        global.$ = $;
+        api.getAllAssets();
+        
+        startFetchCheck();       
+    });
+    
+    
+    </script>
+    
+    <script id="category-template" type="text/x-handlebars-template">
+      <div id="{{path}}">
+        <h1>{{info.name}}</h1>
+        <hr>
+        <ul>
+          {{#each info.assets}}
+          <li id="{{this.id}}">
+            <span class="title">{{this.title}}</span>
+            <span class="price">{{this.price}}</span>
+          </li><!-- {{id}} -->
+          {{/each}}
+        </ul>
+      </div><!-- {{category_path}} -->
+    </script>   
+    
+  </head>
+  <body>
+    <div id="loading">
+        Fetching All Assets...
+    </div>
+    <div id="main">
+      <div id="featured" style="display:none">
+        <h1>Featured Content</h1>
+      </div>
+      <div id="categories">
+      </div>
+    </div><!-- main -->
+  </body>
+</html>

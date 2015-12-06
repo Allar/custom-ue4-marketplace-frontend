@@ -8,8 +8,12 @@
   },
   "chromium-args": "--enable-file-cookies",
   "dependencies": {
+    "gulp": "latest",
+    "gulp-less": "latest",
+    "less": "latest",
     "markdown": "latest",
     "request": "latest",
-    "jQuery": "latest"
+    "jQuery": "latest",
+    "handlebars": "latest"
   }
 }
