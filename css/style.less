@@ -1,4 +1,26 @@
- @import "glyphicon.less";
+ @font-face {
+	font-family: 'glyphs';
+	src: url('app://me/assets/fonts/iconfont.woff') format('woff');
+}
+
+.glyph {
+	display: inline;
+	font-size: 0.8em;
+	font-family: 'glyphs';
+	padding-left: 0.5em;
+}
+
+.glyph-pencil:before {
+	content: '\e900';
+}
+
+.glyph-happy:before {
+	content: '\e902';
+}
+
+.glyph-star:before {
+	content: '\e903';
+}	
  
  @font-face {
 	font-family: 'LauncherFont';
@@ -12,12 +34,68 @@ body {
 	background: #212121;
 	color: white;
 	font-size: 0.8em;
+	margin: 0;
 }
 
-@media (min-width: 1400px) {
-    #main {
-        width: 1400px;
-        margin-left: auto;
-        margin-right: auto;
-    }
+
+#main {
+	max-width: 1400px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.categorylist {
+	width: 100%;
+	margin: 16px;
+	.wrapper {
+	}
+	
+	ul {
+		width: 100%;
+		list-style-type: none;
+		-webkit-padding-start: 0;
+		text-align: center;
+		overflow: auto;
+		
+		li {
+			display: inline-block;
+			vertical-align: top;
+			text-align: left;
+			width: 130px;
+			height: 180px;
+			margin: 16px;
+			position: relative;
+			
+			img {
+				width: 130px;
+				height: 130px;
+				box-shadow: 2px 2px 2px black;
+			}
+						
+			.price {
+				font-size: 1.2em;
+				position: absolute;
+				top: 80px;
+				right: 0px;
+				padding: 2px 4px 2px 2px;
+				width: auto;
+				height: 18px;
+				text-align: right;
+				background: rgba(50,100,255,0.8);
+			}
+			
+			.raters {
+				position: absolute;
+				top: 102px;
+				right: 0px;
+				padding: 2px 4px 2px 2px;
+				width: auto;
+				text-align: right;
+				background: rgba(255,100,50,0.8);
+			}
+		}
+	}
+	br {
+		clear: left;
+	}
 }
