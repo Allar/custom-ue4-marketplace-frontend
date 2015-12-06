@@ -35,6 +35,23 @@
         global.$ = $;
         api.getAllAssets();
         
+        $('#owned-filter').change(function() {
+          switch ($('#owned-filter').val()) {
+            case "show":
+              $('li[data-owned="false"]').show();
+              $('li[data-owned="true"]').show();
+              break;
+            case "exclude":
+              $('li[data-owned="false"]').show();
+              $('li[data-owned="true"]').hide();
+              break;
+            case "only":
+              $('li[data-owned="false"]').hide();
+              $('li[data-owned="true"]').show();
+              break;
+          }
+        });
+        
         startFetchCheck();       
     });
     
@@ -42,17 +59,26 @@
     </script>
     
     <script id="category-template" type="text/x-handlebars-template">
-      <div id="{{path}}">
+      <div id="{{path}}" class="categorylist">
         <h1>{{info.name}}</h1>
         <hr>
-        <ul>
-          {{#each info.assets}}
-          <li id="{{this.id}}">
-            <span class="title">{{this.title}}</span>
-            <span class="price">{{this.price}}</span>
-          </li><!-- {{id}} -->
-          {{/each}}
-        </ul>
+        <div class="wrapper">
+          <ul>
+            {{#each info.assets}}
+            <li id="{{this.id}}" class="asset" data-owned={{this.owned}} data-rating={{#if this.rating}}{{this.rating.average}}{{else}}0{{/if}}>
+              <img class="thumb" src={{this.thumbnail}}>
+              <span class="title">{{this.title}}</span>
+              {{#if this.rating}}
+              <span class="raters">{{this.rating.average}}/5 [{{this.rating.count}}]<span class="glyph glyph-star"></span></span>
+              {{else}}
+              <span class="raters">Unrated</span>
+              {{/if}}
+              <span class="price">{{#if this.free}}FREE{{else if this.owned}}Owned{{else}}{{this.price}}{{/if}}</span>
+            </li><!-- {{id}} -->
+            {{/each}}
+          </ul>
+          <br/>
+        </div>
       </div><!-- {{category_path}} -->
     </script>   
     
@@ -65,6 +91,15 @@
       <div id="featured" style="display:none">
         <h1>Featured Content</h1>
       </div>
+      <div id="toolbar">
+        <label>Owned Assets:</label>
+        <select id="owned-filter">
+          <option value="show">Show</option>
+          <option value="exclude">Hide</option>
+          <option value="only">Only</option>
+        </select>
+        
+       </div>
       <div id="categories">
       </div>
     </div><!-- main -->
