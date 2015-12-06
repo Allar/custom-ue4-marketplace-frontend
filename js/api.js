@@ -9,6 +9,10 @@ require('events').EventEmitter.prototype._maxListeners = 100;
 
 var api = function () {};
 
+api.prototype.skipLogin = function() {
+	window.location.href="./marketplace.html";
+}
+
 api.prototype.updateFakeJar = function(set_cookie_array) {
 	for (var i = 0; i < set_cookie_array.length; ++i) {
 		var cookie_pair = set_cookie_array[i].split(';',1)[0].split('=');
@@ -37,6 +41,7 @@ api.prototype.rebuildLogin = function (body) {
 	$('#password').removeAttr('oninput');
 	$('#signIn').attr('onclick','api.doLogin()');
 	
+	$('form').append("<button id='skipLogin' onclick='api.skipLogin()'>Skip Logging In</button>");
 }
 
 api.prototype.getLogin = function () {
