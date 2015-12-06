@@ -1,0 +1,15 @@
+{
+  "name": "launcher",
+  "main": "login.html",
+  "window": {
+    "toolbar": true,
+    "width": 800,
+    "height": 600
+  },
+  "chromium-args": "--enable-file-cookies",
+  "dependencies": {
+    "markdown": "latest",
+    "request": "latest",
+    "jQuery": "latest"
+  }
+}
