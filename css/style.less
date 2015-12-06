@@ -35,6 +35,7 @@ body {
 	color: white;
 	font-size: 0.8em;
 	margin: 0;
+	overflow-x: hidden;
 }
 
 #loading {
@@ -116,7 +117,12 @@ body {
 
 #toolbar {
 	background-color: #111;
-	height: 50px;
+	height: 100px;
+	
+	@media (min-width: 1240px) {
+		height: 50px;
+	}
+	
 	box-shadow: 2px 2px 2px black;
 	width: 100%;
 	position: fixed;
@@ -124,7 +130,7 @@ body {
 	
 	.nav {
 		float: left;
-		height: 100%;
+		height: 50px;
 		width: 800px;
 		text-align: center;
 		span {
@@ -158,7 +164,7 @@ body {
 	
 	.filters {
 		float: right;
-		height: 100%;
+		height: 50px;
 		width: auto;
 		text-align: right;
 		padding-right: 24px;
