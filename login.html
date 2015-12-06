@@ -1,28 +1,21 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <script src="./js/jquery.js"></script>
+    <script src="./js/jquery.serialize-object.min.js"></script>
     <script>
     var api = require('./js/api.js');
-    require('jQuery');
-    api.getSSOSession();
+    
+    $(document).ready(function() {
+        global.$ = $;
+        api.getLogin();
+        api.getTracked();
+    });
+    
+    
     </script>
   </head>
   <body>
-    <form id="loginForm" onsubmit="return false;">
-        <input type="hidden" name="fromForm" value="yes" id="fromForm" />
-        <div class="textField">
-            <label for="epic_username">Email</label>
-            <input id="epic_username" type="email" name="epic_username" required value="" /> 
-        </div>
-
-        <div class="textField">
-            <label for="password">Password</label>
-            <input id="password" type="password" name="password" required class=""/>
-        </div>
-        
-        <div id="signInBtnContainer" class="btnContainer">
-            <input id="signIn" type="submit" value="Sign In" class="disabled" onclick="api.doLogin()" /> 
-        </div>
-    </form>
+    Loading Login Form...
   </body>
 </html>
