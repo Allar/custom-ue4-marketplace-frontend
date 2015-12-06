@@ -11,19 +11,15 @@
 {
 	"version": "0.1.0",
 
-	"command": "gulp",
+	"command": "lessc",
 	
 	// The command is a shell script
 	"isShellCommand": true,
 	
-	"tasks": [
-        {
-            "taskName": "default",
-            "isBuildCommand": true,
-            "showOutput": "always",
-            "isWatching": true
-        }
-    ]
+	"showOutput": "silent",
+
+	// args is the HelloWorld program to compile.
+	"args": ["css/style.less", ">", "css/style.css"]
 }
 
 // A task runner that calls the Typescript compiler (tsc) and

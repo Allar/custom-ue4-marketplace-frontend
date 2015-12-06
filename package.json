@@ -2,18 +2,16 @@
   "name": "launcher",
   "main": "login.html",
   "window": {
-    "toolbar": true,
-    "width": 800,
-    "height": 600
+    "toolbar": false,
+    "width": 1280,
+    "height": 720,
+    "title": "Allar's UE4 Marketplace Frontend",
+    "min_width": 800,
+    "min_height": 400
   },
   "chromium-args": "--enable-file-cookies",
   "dependencies": {
-    "gulp": "latest",
-    "gulp-less": "latest",
-    "less": "latest",
-    "markdown": "latest",
     "request": "latest",
-    "jQuery": "latest",
     "handlebars": "latest"
   }
 }
