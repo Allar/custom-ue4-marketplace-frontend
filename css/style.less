@@ -42,6 +42,7 @@ body {
 	max-width: 1400px;
 	margin-left: auto;
 	margin-right: auto;
+	padding-top: 50px;
 }
 
 .categorylist {
@@ -97,5 +98,25 @@ body {
 	}
 	br {
 		clear: left;
+	}
+}
+
+#toolbar {
+	background-color: #111;
+	text-align: right;
+	height: 50px;
+	box-shadow: 2px 2px 2px black;
+	width: 100%;
+	position: fixed;
+	top: 0px;
+	line-height: 50px;
+	
+	.filters {
+		padding-right: 24px;
+		
+		label {
+			padding-left: 24px;
+			padding-right: 4px;
+		}
 	}
 }
