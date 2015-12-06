@@ -52,6 +52,75 @@
           }
         });
         
+        function asset_sort_alphabetically(a, b) {
+          return ($(b).children('.title').first().text() < $(a).children('.title').first().text()) ? 1 : -1;
+        }
+        
+        function asset_sort_price_high(a, b) {
+          return ($(b).data('price') > $(a).data('price')) ? 1 : -1;
+        }
+        
+        function asset_sort_price_low(a, b) {
+          return ($(b).data('price') < $(a).data('price')) ? 1 : -1;
+        }
+        
+        function asset_sort_rating_most(a, b) {
+          return ($(b).data('raters') > $(a).data('raters')) ? 1 : -1;
+        }
+        
+        function asset_sort_rating_high(a, b) {
+          return ($(b).data('rating') > $(a).data('rating')) ? 1 : -1;
+        }
+        
+        function asset_sort_rating_low(a, b) {
+          return ($(b).data('rating') < $(a).data('rating')) ? 1 : -1;
+        }
+        
+        function asset_sort_date_recent(a, b) {
+          return ($(b).data('price') > $(a).data('price')) ? 1 : -1;
+        }
+        
+        $('#sortby').change(function() {
+          switch ($('#sortby').val()) {
+            case "alphabetically":
+              $(".categorylist ul").each(function(index, element) {
+                $(element).find('li').sort(asset_sort_alphabetically).appendTo(element);
+              });
+              break;
+            case "price_high":
+              $(".categorylist ul").each(function(index, element) {
+                $(element).find('li').sort(asset_sort_price_high).appendTo(element);
+              });
+              break;
+            case "price_low":
+              $(".categorylist ul").each(function(index, element) {
+                $(element).find('li').sort(asset_sort_price_low).appendTo(element);
+              });
+              break;
+            case "rating_most":
+              $(".categorylist ul").each(function(index, element) {
+                $(element).find('li').sort(asset_sort_rating_most).appendTo(element);
+              });
+              break;
+            case "rating_high":
+              $(".categorylist ul").each(function(index, element) {
+                $(element).find('li').sort(asset_sort_rating_high).appendTo(element);
+              });
+              break;
+            case "rating_low":
+              $(".categorylist ul").each(function(index, element) {
+                $(element).find('li').sort(asset_sort_rating_low).appendTo(element);
+              });
+              break;
+            case "date_recent":
+              $(".categorylist ul").each(function(index, element) {
+                $(element).find('li').sort(asset_sort_date_recent).appendTo(element);
+              });
+              break;
+            
+          }
+        });
+        
         startFetchCheck();       
     });
     
@@ -65,7 +134,7 @@
         <div class="wrapper">
           <ul>
             {{#each info.assets}}
-            <li id="{{this.id}}" class="asset" data-owned={{this.owned}} data-rating={{#if this.rating}}{{this.rating.average}}{{else}}0{{/if}}>
+            <li id="{{this.id}}" class="asset" data-owned={{this.owned}} data-price={{this.priceValue}} data-rating={{#if this.rating}}{{this.rating.average}}{{else}}0{{/if}} data-raters={{#if this.rating}}{{this.rating.count}}{{else}}0{{/if}}>
               <img class="thumb" src={{this.thumbnail}}>
               <span class="title">{{this.title}}</span>
               {{#if this.rating}}
@@ -73,7 +142,7 @@
               {{else}}
               <span class="raters">Unrated</span>
               {{/if}}
-              <span class="price">{{#if this.free}}FREE{{else if this.owned}}Owned{{else}}{{this.price}}{{/if}}</span>
+              <span class="price">{{#if this.owned}}Owned{{else if this.free}}FREE{{else}}{{this.price}}{{/if}}</span>
             </li><!-- {{id}} -->
             {{/each}}
           </ul>
@@ -91,17 +160,28 @@
       <div id="featured" style="display:none">
         <h1>Featured Content</h1>
       </div>
-      <div id="toolbar">
+      <div id="categories">
+      </div>
+    </div><!-- main -->
+    <div id="toolbar">
+      <div class="filters">
         <label>Owned Assets:</label>
         <select id="owned-filter">
           <option value="show">Show</option>
           <option value="exclude">Hide</option>
           <option value="only">Only</option>
         </select>
-        
-       </div>
-      <div id="categories">
+        <label>Sort:</label>
+        <select id="sortby">
+          <option value="alphabetically">Alphabetically</option>
+          <option value="price_low">Price - Lowest</option>
+          <option value="price_high">Price - Highest</option>
+          <option value="rating_most">Rating - Most</option>
+          <option value="rating_high">Rating - Highest</option>
+          <option value="rating_low">Rating - Lowest</option>
+          <option value="date_recent">Most Recent</option>
+        </select>
       </div>
-    </div><!-- main -->
+    </div>
   </body>
 </html>
