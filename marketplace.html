@@ -29,6 +29,11 @@
         $('#categories').append(cat_template(cat_context));
       }
       
+      //@todo: make this data storage... better and less redundant
+      var nav_context = {cats: global.categories}
+      var nav_template = Handlebars.compile($('#nav-template').html());  
+      $('#navlist').append(nav_template(nav_context));
+      
     }
     
     $(document).ready(function() {
@@ -128,7 +133,7 @@
     </script>
     
     <script id="category-template" type="text/x-handlebars-template">
-      <div id="{{path}}" class="categorylist">
+      <div id="{{path}}" class="categorylist jumptarget">
         <h1>{{info.name}}</h1>
         <hr>
         <div class="wrapper">
@@ -149,7 +154,13 @@
           <br/>
         </div>
       </div><!-- {{category_path}} -->
-    </script>   
+    </script>
+    
+    <script id="nav-template" type="text/x-handlebars-template">
+      {{#each cats}}
+        <li><a href="#{{this.path}}">{{this.name}}</a></li>
+      {{/each}}  
+    </script>
     
   </head>
   <body>
@@ -164,6 +175,11 @@
       </div>
     </div><!-- main -->
     <div id="toolbar">
+      <div class="nav">
+        <span class="label">Jump to Categories:</span>
+        <ul id="navlist">
+        </ul>          
+      </div>
       <div class="filters">
         <label>Owned Assets:</label>
         <select id="owned-filter">
@@ -182,6 +198,7 @@
           <option value="date_recent">Most Recent</option>
         </select>
       </div>
+      <div style="clear:both;"></div>
     </div>
   </body>
 </html>
