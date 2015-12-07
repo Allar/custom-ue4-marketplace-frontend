@@ -2,11 +2,11 @@
   "name": "launcher",
   "main": "login.html",
   "window": {
-    "toolbar": false,
+    "toolbar": true,
     "width": 1280,
     "height": 720,
     "title": "Allar's UE4 Marketplace Frontend",
-    "min_width": 800,
+    "min_width": 880,
     "min_height": 400
   },
   "chromium-args": "--enable-file-cookies",

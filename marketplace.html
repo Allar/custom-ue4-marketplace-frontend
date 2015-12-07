@@ -62,32 +62,7 @@
       asset_sort_date_recent: function(a, b) { return ($(b).data('effectivedate') > $(a).data('effectivedate')) ? 1 : -1; },
       asset_sort_date_old: function(a, b) { return ($(b).data('effectivedate') < $(a).data('effectivedate')) ? 1 : -1; },
     }
-            
-    var onAllAssetsFetched = function() {
-      $("#loading").hide();
-      
-      // Useful for looking at Epic's asset JSON data during development
-      console.log("Marketplace Data:");
-      console.log(global.marketplace);
-      
-      for (var category in global.marketplace) {
-        var cat_context = {path: category, info: global.marketplace[category]};
-        var cat_template = Handlebars.compile($('#category-template').html());         
-        $('#categories').append(cat_template(cat_context));
-      }
-      
-      //@todo: make this data storage... better and less redundant
-      var nav_context = {cats: global.categories}
-      var nav_template = Handlebars.compile($('#nav-template').html());  
-      $('#navlist').append(nav_template(nav_context));
-      
-      // Default to sort by most recent
-      $('#sortby').val('asset_sort_date_recent');
-      $(".categorylist ul").each(function(index, element) {
-        $(element).find('li').sort(sorts[$('#sortby').val()]).appendTo(element);
-      });
-    }
-    
+        
     // Takes a 'HTML string' and returns proper HTML
     // https://css-tricks.com/snippets/javascript/unescape-html-in-js/
     function htmlDecode(input){
@@ -155,6 +130,12 @@
         });
       });
       
+      // Sellers name in details should open a link to their support email in a new browser
+      $('#details-header .author').find('a').on('click', function(){
+        open(this.href);
+        return false;
+      });
+      
       // Builds nav buttons under looper
       var item_count = $('#detailsLooper .looper-inner .item').length;
       for (var i = 0; i < item_count; ++i) {
@@ -181,42 +162,126 @@
       $('#toolbar').show();
     }
     
+    // Applys non-sort filters to asset list
+    var applyNonSortFilters = function() {
+      // Show all assets
+      $('.asset').show();
+      
+      // Apply owned filter
+      switch ($('#owned-filter').val()) {
+        case "show":
+          $('li[data-owned="false"]').show();
+          $('li[data-owned="true"]').show();
+          break;
+        case "exclude":
+          $('li[data-owned="false"]').show();
+          $('li[data-owned="true"]').hide();
+          break;
+        case "only":
+          $('li[data-owned="false"]').hide();
+          $('li[data-owned="true"]').show();
+          break;
+      }
+      
+      // Apply search filter
+      var searchText = $('#search-input').val();
+      if (searchText) {
+      
+        var searchNamesFilter = '.asset span.title:not(:Contains("' + searchText +'"))';
+        var searchAuthorsFilter = '.asset span.author:not(:Contains("' + searchText +'"))';
+        
+        // Filter based on sort type
+        switch ($('#search-for').val()) {
+          case "name":
+            $(''+searchNamesFilter).parent().hide();
+            break;
+          case "author":
+            $(''+searchAuthorsFilter).parent().hide();
+            break;
+          case "all":
+            $(''+searchNamesFilter).parent().filter($(''+searchAuthorsFilter).parent()).hide();
+            break;
+          }
+      }
+      
+      // Hide categories that are empty
+      $('.categorylist').each(function(index, element) {
+        // Start by showing all cats
+        $(element).show();
+        $('#navlist li[data-cat="' + $(element).attr('id') + '"]').show();
+        
+        // If a cat has no visible assets, hide it
+        if ($(element).find('ul li:visible').length == 0)
+        {
+          $(element).hide();
+          $('#navlist li[data-cat="' + $(element).attr('id') + '"]').hide();
+        }
+      });
+    }
+    
+    // When page is loaded and ready for javascript...
     $(document).ready(function() {
+      // Add case-insensitive 'Contains' to jQuery
+      jQuery.expr[':'].Contains = function(a,i,m){
+          return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase())>=0;
+      };
+
       global.window.nwDispatcher.requireNwGui().Window.get().title = "Allar's UE4 Marketplace Frontend";
       global.$ = $;
       api.getAllAssets();
       
-      $('#owned-filter').change(function() {
-        switch ($('#owned-filter').val()) {
-          case "show":
-            $('li[data-owned="false"]').show();
-            $('li[data-owned="true"]').show();
-            break;
-          case "exclude":
-            $('li[data-owned="false"]').show();
-            $('li[data-owned="true"]').hide();
-            break;
-          case "only":
-            $('li[data-owned="false"]').hide();
-            $('li[data-owned="true"]').show();
-            break;
-        }
-      }); 
-      
+      // Sort filter changed handler
       $('#sortby').change(function() {
         $(".categorylist ul").each(function(index, element) {
           $(element).find('li').sort(sorts[$('#sortby').val()]).appendTo(element);
         });
-      });  
+      });
+            
+      // Owned filter changed handler
+      $('#owned-filter').change(applyNonSortFilters);
       
+      // Search for filter changed handler
+      $('#search-for').change(applyNonSortFilters);
+      
+      // Search filter changed handler
+      $('#search-input').on("input", applyNonSortFilters);
+      
+      // Hide details on load
       $('#details-wrapper').hide();    
       
       startFetchCheck();       
     });
     
-    
+    // Called after every asset for the marketplace has had its JSON data loaded  
+    var onAllAssetsFetched = function() {
+      $("#loading").hide();
+      
+      // Useful for looking at Epic's asset JSON data during development
+      console.log("Marketplace Data:");
+      console.log(global.marketplace);
+      
+      for (var category in global.marketplace) {
+        var cat_context = {path: category, info: global.marketplace[category]};
+        var cat_template = Handlebars.compile($('#category-template').html());         
+        $('#categories').append(cat_template(cat_context));
+      }
+      
+      //@todo: make this data storage... better and less redundant
+      var nav_context = {cats: global.categories}
+      var nav_template = Handlebars.compile($('#nav-template').html());  
+      $('#navlist').append(nav_template(nav_context));
+      
+      // Default to sort by most recent
+      $('#sortby').val('asset_sort_date_recent');
+      $(".categorylist ul").each(function(index, element) {
+        $(element).find('li').sort(sorts[$('#sortby').val()]).appendTo(element);
+      });
+      
+      applyNonSortFilters();
+    }
     </script>
     
+    <!-- Template for showing a category and all the assets in said category -->
     <script id="category-template" type="text/x-handlebars-template">
       <div id="{{path}}" class="categorylist jumptarget">
         <h1>{{info.name}}</h1>
@@ -227,6 +292,7 @@
             <li id="{{this.id}}" class="asset" data-effectivedate={{ISODateToUnix this.effectiveDate}} data-owned={{this.owned}} data-price={{this.priceValue}} data-rating={{#if this.rating}}{{this.rating.average}}{{else}}0{{/if}} data-raters={{#if this.rating}}{{this.rating.count}}{{else}}0{{/if}}>
               <a href="#" onclick="showDetailsFor('{{../path}}','{{this.id}}')"><img class="thumb" src={{this.thumbnail}}></a>
               <span class="title">{{this.title}}</span>
+              <span class="author">{{this.seller.name}}</span>
               {{#if this.rating}}
               <span class="raters">{{this.rating.average}}/5 [{{this.rating.count}}]<span class="glyph glyph-star"></span></span>
               {{else}}
@@ -241,12 +307,14 @@
       </div><!-- {{category_path}} -->
     </script>
     
+    <!-- Template for a 'jump to category' nav link list -->
     <script id="nav-template" type="text/x-handlebars-template">
       {{#each cats}}
-        <li><a href="#{{this.path}}">{{this.name}}</a></li>
+        <li data-cat="{{this.path}}" {{#ifCond this.path '==' 'assets/onsale'}}class="sale"{{/ifCond}}><a href="#{{this.path}}">{{this.name}}</a></li>
       {{/each}}  
     </script>
     
+    <!-- Template for the asset details page -->
     <script id="details-template" type="text/x-handlebars-template">
       <div id="details">
         <div id="details-nav">
@@ -255,7 +323,7 @@
         <div id="details-header">
           <img class="thumb" src="{{thumbnail}}">
           <span class="title">{{title}}</span>
-          <span class="author">by {{seller.name}} - <em>{{ISODateToMonthDayYear effectiveDate}}</em></span>
+          <span class="author">by <a href="mailto:{{seller.supportEmail}}?subject=Support for {{title}}">{{seller.name}}</a> - <em>{{ISODateToMonthDayYear effectiveDate}}</em></span>
           <span class="desc">{{description}}</span>
           {{#if rating}}
           <span class="rating">Rated {{rating.average}}/5 by {{rating.count}} customer{{#ifCond rating.count '>' 1}}s{{/ifCond}}.</span>
@@ -303,12 +371,12 @@
           </div>
       </div> 
     </script>
-    
   </head>
+  <!-- begin 'static' html -->
   <body>
     <div id="loading">
         <h1>Fetching All Assets...</h1>
-        (This should be asyncronous but its not right now)
+        (This should be asyncronous but I'm bad at this whole web dev thing)
     </div>
     <div id="details-wrapper">
     </div>
@@ -322,8 +390,15 @@
     <div id="toolbar">
       <div class="top-row">
         <div class="search">
+          <label>Search For:</label>
+          <select id="search-for">
+            <option value="name">Name</option>
+            <option value="author">Author</option>
+            <option value="all" selected>All</option>
+          </select>
           <label>Search:</label>
-          <input type="search"></input>
+          <input id="search-input" type="search"></input>
+          
         </div>
         <div class="filters">
           <label>Owned Assets:</label>
