@@ -394,6 +394,7 @@ body {
   width: 94%;
   margin: 0px auto 20px auto;
   padding: 16px;
+  line-height: 1.5em;
 }
 #details-wrapper #details-desc h1,
 #details-wrapper #details-desc hr {
@@ -508,6 +509,7 @@ body {
   padding-right: 4px;
 }
 #toolbar .top-row .search {
+  display: none;
   float: left;
   width: auto;
   text-align: left;
@@ -521,8 +523,8 @@ body {
 .jumptarget:before {
   content: "";
   display: block;
-  height: 50px;
+  height: 100px;
   /* fixed header height*/
-  margin: -50px 0 0;
+  margin: -100px 0 0;
   /* negative fixed header height */
 }
