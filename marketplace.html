@@ -4,9 +4,42 @@
     <link href="css/style.css" rel="stylesheet">
     <script src="./js/jquery.js"></script>
     <script src="./js/jquery.serialize-object.min.js"></script>
+    <script src="./js/looper.js"></script>
     <script>
     var api = require('./js/api.js');
     var Handlebars = require('handlebars');
+    
+    // http://stackoverflow.com/questions/8853396/logical-operator-in-a-handlebars-js-if-conditional
+    Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
+      switch (operator) {
+        case '==':
+          return (v1 == v2) ? options.fn(this) : options.inverse(this);
+        case '===':
+          return (v1 === v2) ? options.fn(this) : options.inverse(this);
+        case '<':
+          return (v1 < v2) ? options.fn(this) : options.inverse(this);
+        case '<=':
+          return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+        case '>':
+          return (v1 > v2) ? options.fn(this) : options.inverse(this);
+        case '>=':
+          return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+        case '&&':
+          return (v1 && v2) ? options.fn(this) : options.inverse(this);
+        case '||':
+          return (v1 || v2) ? options.fn(this) : options.inverse(this);
+        default:
+          return options.inverse(this);
+      }
+    });
+    
+    Handlebars.registerHelper('ISODateToUnix', function(ISODate) {
+        return Date.parse(ISODate);
+    });
+    
+    Handlebars.registerHelper('ISODateToMonthDayYear', function(ISODate) {
+        return (new Date(ISODate).toLocaleDateString(window.navigator.language, {month: 'long', day: 'numeric', year: 'numeric'}));
+    });
     
     global.assetCollection = [];
     
@@ -32,11 +65,9 @@
     var onAllAssetsFetched = function() {
       $("#loading").hide();
       
+      // Useful for looking at Epic's asset JSON data during development
+      console.log("Marketplace Data:");
       console.log(global.marketplace);
-       
-      Handlebars.registerHelper('EpicDateToDate', function(EpicDate) {
-        return (new Date(EpicDate.substring(0,10)).getTime() / 1000).toFixed(0);
-      });
       
       for (var category in global.marketplace) {
         var cat_context = {path: category, info: global.marketplace[category]};
@@ -54,37 +85,103 @@
       $(".categorylist ul").each(function(index, element) {
         $(element).find('li').sort(sorts[$('#sortby').val()]).appendTo(element);
       });
+    }
+    
+    // Takes a 'HTML string' and returns proper HTML
+    // https://css-tricks.com/snippets/javascript/unescape-html-in-js/
+    function htmlDecode(input){
+      var e = document.createElement('div');
+      e.innerHTML = input;
+      return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+    }
+    
+    // Given a category path and an asset's id, we generate a details page for it and show it
+    var showDetailsFor = function(path, assetid) {
+      var asset = $.grep(global.marketplace[path].assets, function(e){ return e.id === assetid; })[0];
+      var details_template = Handlebars.compile($('#details-template').html()); 
+      $('#details-wrapper').empty();
+      $('#details-wrapper').html(details_template(asset)); 
+
+      // Builds nav buttons under looper
+      var item_count = $('#detailsLooper .looper-inner .item').length;
+      for (var i = 0; i < item_count; ++i) {
+        $('#detailsLooper nav ul').append('<li><a href="#detailsLooper" data-looper="to" data-args="' + (i+1) + '">&bull;</a></li>')
+      }
       
+      // Fix Epic's broken ass malformed closing tags i.e. <a></> instead of <a></a>
+      // I wrote this using some really hacky logic and the assumption that jQuery's ".parseHTML"
+      // results in a 'good enough DOM' where I can extract the tags I need to close. I don't know if this
+      // fixes every case, but it appears to be 'good enough' for now.
+      // It also replaces new lines with <br> and adds <hr> to any </h1>
+      $('.fix-html').each(function(index) {
+        var fixed = $(this).html();
+        fixed = fixed.replace(/&lt;/g, '<');
+        fixed = fixed.replace(/&gt;/g, '>');
+        var badTagIndex = fixed.indexOf('</>');
+        while (badTagIndex != -1) {
+          var badDOM = $.parseHTML(fixed.substring(0, badTagIndex));
+          var elementTag = $(badDOM).last().get(0).tagName.toLowerCase();
+          fixed = fixed.replace('</>', '</' + elementTag + '>')
+          badTagIndex = fixed.indexOf('</>');
+        }
+        fixed = fixed.replace(/(?:\r\n|\r|\n)/g, "<br>"); // Makes newlines pretty
+        fixed = fixed.replace(/<\/h1>/g, "</h1><hr>"); // Adds <hr> to <h1> i.e. Contact and Support
+        fixed = fixed.replace(/<br><br><h1>/g, "<br><h1>"); // Removes extra newline before <h1>'s
+        fixed = fixed.replace(/<hr><br>/g, "<hr>"); // Removes extra newline after <h1>'s
+        $(this).html(fixed);
+      });
+      
+      // Initializes looper
+      $('#detailsLooper').looper({interval:false, pause:false});
+      
+      // Updates nav buttons on looper change
+      $('#detailsLooper').on('shown', function(e) {
+        $('nav ul li', this).removeClass('active').eq(e.relatedIndex).addClass('active');
+      });
+      
+      $('#details-wrapper').show();
+      $('#main').hide();
+      $('#toolbar').hide();
+    }
+    
+    var hideDetails = function() {
+      $('#details-wrapper').hide();
+      $('#details-wrapper').empty();
+      $('#main').show();
+      $('#toolbar').show();
     }
     
     $(document).ready(function() {
-        global.$ = $;
-        api.getAllAssets();
-        
-        $('#owned-filter').change(function() {
-          switch ($('#owned-filter').val()) {
-            case "show":
-              $('li[data-owned="false"]').show();
-              $('li[data-owned="true"]').show();
-              break;
-            case "exclude":
-              $('li[data-owned="false"]').show();
-              $('li[data-owned="true"]').hide();
-              break;
-            case "only":
-              $('li[data-owned="false"]').hide();
-              $('li[data-owned="true"]').show();
-              break;
-          }
-        }); 
-        
-        $('#sortby').change(function() {
-          $(".categorylist ul").each(function(index, element) {
-            $(element).find('li').sort(sorts[$('#sortby').val()]).appendTo(element);
-          });
-        });       
-        
-        startFetchCheck();       
+      global.window.nwDispatcher.requireNwGui().Window.get().title = "Allar's UE4 Marketplace Frontend";
+      global.$ = $;
+      api.getAllAssets();
+      
+      $('#owned-filter').change(function() {
+        switch ($('#owned-filter').val()) {
+          case "show":
+            $('li[data-owned="false"]').show();
+            $('li[data-owned="true"]').show();
+            break;
+          case "exclude":
+            $('li[data-owned="false"]').show();
+            $('li[data-owned="true"]').hide();
+            break;
+          case "only":
+            $('li[data-owned="false"]').hide();
+            $('li[data-owned="true"]').show();
+            break;
+        }
+      }); 
+      
+      $('#sortby').change(function() {
+        $(".categorylist ul").each(function(index, element) {
+          $(element).find('li').sort(sorts[$('#sortby').val()]).appendTo(element);
+        });
+      });  
+      
+      $('#details-wrapper').hide();    
+      
+      startFetchCheck();       
     });
     
     
@@ -97,8 +194,8 @@
         <div class="wrapper">
           <ul>
             {{#each info.assets}}
-            <li id="{{this.id}}" class="asset" data-effectivedate={{EpicDateToDate this.effectiveDate}} data-owned={{this.owned}} data-price={{this.priceValue}} data-rating={{#if this.rating}}{{this.rating.average}}{{else}}0{{/if}} data-raters={{#if this.rating}}{{this.rating.count}}{{else}}0{{/if}}>
-              <img class="thumb" src={{this.thumbnail}}>
+            <li id="{{this.id}}" class="asset" data-effectivedate={{ISODateToUnix this.effectiveDate}} data-owned={{this.owned}} data-price={{this.priceValue}} data-rating={{#if this.rating}}{{this.rating.average}}{{else}}0{{/if}} data-raters={{#if this.rating}}{{this.rating.count}}{{else}}0{{/if}}>
+              <a href="#" onclick="showDetailsFor('{{this.categories.0.path}}','{{this.id}}')"><img class="thumb" src={{this.thumbnail}}></a>
               <span class="title">{{this.title}}</span>
               {{#if this.rating}}
               <span class="raters">{{this.rating.average}}/5 [{{this.rating.count}}]<span class="glyph glyph-star"></span></span>
@@ -106,7 +203,7 @@
               <span class="raters">Unrated</span>
               {{/if}}
               <span class="price">{{#if this.owned}}Owned{{else if this.free}}FREE{{else}}{{this.price}}{{/if}}</span>
-            </li><!-- {{id}} -->
+            </li>
             {{/each}}
           </ul>
           <br/>
@@ -120,10 +217,70 @@
       {{/each}}  
     </script>
     
+    <script id="details-template" type="text/x-handlebars-template">
+      <div id="details">
+        <div id="details-nav">
+          <a href="#" onclick='hideDetails()'><span class="glyph glyph-home"></span>Back</a>
+        </div>
+        <div id="details-header">
+          <img class="thumb" src="{{thumbnail}}">
+          <span class="title">{{title}}</span>
+          <span class="author">by {{seller.name}} - <em>{{ISODateToMonthDayYear effectiveDate}}</em></span>
+          <span class="desc">{{description}}</span>
+          {{#if rating}}
+          <span class="rating">Rated {{rating.average}}/5 by {{rating.count}} customer{{#ifCond rating.count '>' 1}}s{{/ifCond}}.</span>
+          {{else}}
+          <span class="rating">This asset currently has no ratings.</span>
+          {{/if}}
+          <div class="action-wrapper">
+            <button id="buyasset">{{#if owned}}Owned{{else}}Buy {{price}}{{/if}}</button>
+          </div>
+        </div>
+        <div id="detailsLooperWrapper">
+          <div id="detailsLooper" class="looper slide">
+            <div class="looper-inner">
+            {{#each keyImages}}
+            {{#ifCond this.type '==' 'Screenshot'}}
+              <div class="item">
+                <img src="{{this.url}}" alt="">
+              </div>
+            {{else}}
+            {{/ifCond}}
+            {{/each}}
+            </div>
+            <nav>
+              <a class="looper-control" data-looper="prev" href="#detailsLooper">
+                <span class="glyph glyph-arrow-left"></span>
+              </a>
+              <a class="looper-control right" data-looper="next" href="#detailsLooper">
+                <span class="glyph glyph-arrow-right"></span>
+              </a>
+              <ul class="looper-nav">
+              </ul>
+            </nav>
+          </div>
+        </div>
+        <div id="details-desc">
+          <div class="desc">
+            <h1>Description</h1>
+            <hr/>
+            <div class="desc-text fix-html">{{longDescription}}</div>
+          </div>
+          <div class="tech-details">
+            <h1>Technical Details</h1>
+            <hr/>
+            <div class="tech-details-text fix-html">{{technicalDetails}}</div>
+          </div>
+      </div> 
+    </script>
+    
   </head>
   <body>
     <div id="loading">
-        Fetching All Assets...
+        <h1>Fetching All Assets...</h1>
+        (This should be asyncronous but its not right now)
+    </div>
+    <div id="details-wrapper">
     </div>
     <div id="main">
       <div id="featured" style="display:none">
@@ -133,29 +290,34 @@
       </div>
     </div><!-- main -->
     <div id="toolbar">
+      <div class="top-row">
+        <div class="search">
+          <label>Search:</label>
+          <input type="search"></input>
+        </div>
+        <div class="filters">
+          <label>Owned Assets:</label>
+          <select id="owned-filter">
+            <option value="show">Show</option>
+            <option value="exclude">Hide</option>
+            <option value="only">Only</option>
+          </select>
+          <label>Sort:</label>
+          <select id="sortby">
+            <option value="asset_sort_alphabetically">Alphabetically</option>
+            <option value="asset_sort_price_low">Price - Lowest</option>
+            <option value="asset_sort_price_high">Price - Highest</option>
+            <option value="asset_sort_rating_most">Rating - Most</option>
+            <option value="asset_sort_rating_high">Rating - Highest</option>
+            <option value="asset_sort_rating_low">Rating - Lowest</option>
+            <option value="asset_sort_date_recent">Release - Most Recent</option>
+            <option value="asset_sort_date_old">Release - Oldest</option>
+          </select>
+        </div>
       <div class="nav">
         <span class="label">Jump to Categories:</span>
         <ul id="navlist">
         </ul>          
-      </div>
-      <div class="filters">
-        <label>Owned Assets:</label>
-        <select id="owned-filter">
-          <option value="show">Show</option>
-          <option value="exclude">Hide</option>
-          <option value="only">Only</option>
-        </select>
-        <label>Sort:</label>
-        <select id="sortby">
-          <option value="asset_sort_alphabetically">Alphabetically</option>
-          <option value="asset_sort_price_low">Price - Lowest</option>
-          <option value="asset_sort_price_high">Price - Highest</option>
-          <option value="asset_sort_rating_most">Rating - Most</option>
-          <option value="asset_sort_rating_high">Rating - Highest</option>
-          <option value="asset_sort_rating_low">Rating - Lowest</option>
-          <option value="asset_sort_date_recent">Release - Most Recent</option>
-          <option value="asset_sort_date_old">Release - Oldest</option>
-        </select>
       </div>
       <div style="clear:both;"></div>
     </div>
