@@ -7,6 +7,7 @@
     <script src="./js/looper.js"></script>
     <script>
     var api = require('./js/api.js');
+    var open = require("open");
     var Handlebars = require('handlebars');
     
     // http://stackoverflow.com/questions/8853396/logical-operator-in-a-handlebars-js-if-conditional
@@ -113,6 +114,7 @@
       // results in a 'good enough DOM' where I can extract the tags I need to close. I don't know if this
       // fixes every case, but it appears to be 'good enough' for now.
       // It also replaces new lines with <br> and adds <hr> to any </h1>
+      // It then takes the fixed HTML and makes all links open in a new browser
       $('.fix-html').each(function(index) {
         var fixed = $(this).html();
         fixed = fixed.replace(/&lt;/g, '<');
@@ -127,8 +129,14 @@
         fixed = fixed.replace(/(?:\r\n|\r|\n)/g, "<br>"); // Makes newlines pretty
         fixed = fixed.replace(/<\/h1>/g, "</h1><hr>"); // Adds <hr> to <h1> i.e. Contact and Support
         fixed = fixed.replace(/<br><br><h1>/g, "<br><h1>"); // Removes extra newline before <h1>'s
-        fixed = fixed.replace(/<hr><br>/g, "<hr>"); // Removes extra newline after <h1>'s
+        fixed = fixed.replace(/<hr><br>/g, "<hr>"); // Removes extra newline after <h1>'s        
         $(this).html(fixed);
+        
+        // All links in these descriptions should open in a new browser
+        $(this).find('a').on('click', function(){
+          open(this.href);
+          return false;
+        });
       });
       
       // Initializes looper
