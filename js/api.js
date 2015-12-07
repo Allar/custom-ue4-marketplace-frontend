@@ -215,7 +215,6 @@ api.prototype.getAllAssets = function() {
 			});
 		}		
 	});
-	
 }
 
 module.exports = new api();
