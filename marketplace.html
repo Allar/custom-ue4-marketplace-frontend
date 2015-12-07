@@ -97,7 +97,12 @@
     }
     
     // Given a category path and an asset's id, we generate a details page for it and show it
+    // It is important to note here that you should be using paths from the category fetches and
+    // not using an asset's "categories" array. There are major mismatches in an asset's "categories" array
+    // that make that data simply unusable, i.e. official category 'assets/characters-animations' but an asset
+    // may list itself as 'assets/characters' instead.
     var showDetailsFor = function(path, assetid) {
+      console.log("Showing details for " + path + " -> " + assetid);
       var asset = $.grep(global.marketplace[path].assets, function(e){ return e.id === assetid; })[0];
       var details_template = Handlebars.compile($('#details-template').html()); 
       $('#details-wrapper').empty();
@@ -203,7 +208,7 @@
           <ul>
             {{#each info.assets}}
             <li id="{{this.id}}" class="asset" data-effectivedate={{ISODateToUnix this.effectiveDate}} data-owned={{this.owned}} data-price={{this.priceValue}} data-rating={{#if this.rating}}{{this.rating.average}}{{else}}0{{/if}} data-raters={{#if this.rating}}{{this.rating.count}}{{else}}0{{/if}}>
-              <a href="#" onclick="showDetailsFor('{{this.categories.0.path}}','{{this.id}}')"><img class="thumb" src={{this.thumbnail}}></a>
+              <a href="#" onclick="showDetailsFor('{{../path}}','{{this.id}}')"><img class="thumb" src={{this.thumbnail}}></a>
               <span class="title">{{this.title}}</span>
               {{#if this.rating}}
               <span class="raters">{{this.rating.average}}/5 [{{this.rating.count}}]<span class="glyph glyph-star"></span></span>
