@@ -1,3 +1,240 @@
+.looper {
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+  width: auto;
+  height: auto;
+}
+.looper:focus {
+  outline: 0;
+}
+.looper .looper-inner {
+  overflow: hidden;
+  width: 100%;
+  height: auto;
+  position: relative;
+  z-index: 2;
+}
+.looper .item {
+  display: none;
+  position: relative;
+  z-index: 3;
+}
+.looper .item.active,
+.looper .item.next,
+.looper .item.prev {
+  display: block;
+}
+.looper .item.active {
+  top: 0;
+  left: 0;
+  z-index: 4;
+}
+.looper .item > img {
+  display: block;
+  line-height: 1;
+}
+.looper.xfade .looper-inner {
+  height: 100%;
+}
+.looper.xfade .item {
+  -webkit-transition: 0.5s ease-in opacity;
+  -moz-transition: 0.5s ease-in opacity;
+  -o-transition: 0.5s ease-in opacity;
+  transition: 0.5s ease-in opacity;
+  position: absolute;
+  width: 100%;
+  opacity: 0;
+}
+.looper.xfade .item.go {
+  opacity: 1;
+}
+.looper.xfade .item.active {
+  opacity: 1;
+}
+.looper.xfade .item.active.go {
+  opacity: 0;
+}
+.looper.slide.xfade .item {
+  -webkit-transition: 0.5s ease-in-out left, 0.5s ease-in opacity;
+  -moz-transition: 0.5s ease-in-out left, 0.5s ease-in opacity;
+  -o-transition: 0.5s ease-in-out left, 0.5s ease-in opacity;
+  transition: 0.5s ease-in-out left, 0.5s ease-in opacity;
+}
+.looper.slide .item {
+  -webkit-transition: 0.5s ease-in-out left;
+  -moz-transition: 0.5s ease-in-out left;
+  -o-transition: 0.5s ease-in-out left;
+  transition: 0.5s ease-in-out left;
+}
+.looper.slide .item.next,
+.looper.slide .item.prev {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+.looper.slide .item.next {
+  left: 100%;
+}
+.looper.slide .item.prev {
+  left: -100%;
+}
+.looper.slide .item.active.prev,
+.looper.slide .item.active.next {
+  position: relative;
+  left: 0;
+}
+.looper.slide .item.go {
+  left: 0;
+}
+.looper.slide .item.go.active {
+  left: -100%;
+}
+.looper.slide .item.go.active.prev {
+  left: 100%;
+}
+.looper.slide.right .item.next {
+  left: -100%;
+}
+.looper.slide.right .item.prev {
+  left: 100%;
+}
+.looper.slide.right .item.go {
+  left: 0;
+}
+.looper.slide.right .item.go.active {
+  left: 100%;
+}
+.looper.slide.right .item.go.active.prev {
+  left: -100%;
+}
+.looper.slide.down .looper-inner {
+  height: 100%;
+}
+.looper.slide.down .item {
+  -webkit-transition: 0.5s ease-in-out top;
+  -moz-transition: 0.5s ease-in-out top;
+  -o-transition: 0.5s ease-in-out top;
+  transition: 0.5s ease-in-out top;
+}
+.looper.slide.down .item.next,
+.looper.slide.down .item.prev {
+  left: 0;
+}
+.looper.slide.down .item.next {
+  top: -100%;
+}
+.looper.slide.down .item.prev {
+  top: 100%;
+}
+.looper.slide.down .item.go {
+  top: 0;
+}
+.looper.slide.down .item.go.active {
+  top: 100%;
+  left: 0;
+}
+.looper.slide.down .item.go.active.prev {
+  top: -100%;
+}
+.looper.slide.down.xfade .item {
+  -webkit-transition: 0.5s ease-in-out top, 0.5s ease-in opacity;
+  -moz-transition: 0.5s ease-in-out top, 0.5s ease-in opacity;
+  -o-transition: 0.5s ease-in-out top, 0.5s ease-in opacity;
+  transition: 0.5s ease-in-out top, 0.5s ease-in opacity;
+}
+.looper.slide.up .looper-inner {
+  height: 100%;
+}
+.looper.slide.up .item {
+  -webkit-transition: 0.5s ease-in-out top;
+  -moz-transition: 0.5s ease-in-out top;
+  -o-transition: 0.5s ease-in-out top;
+  transition: 0.5s ease-in-out top;
+}
+.looper.slide.up .item.next,
+.looper.slide.up .item.prev {
+  left: 0;
+}
+.looper.slide.up .item.next {
+  top: 100%;
+}
+.looper.slide.up .item.prev {
+  top: -100%;
+}
+.looper.slide.up .item.go {
+  top: 0;
+}
+.looper.slide.up .item.go.active {
+  top: -100%;
+  left: 0;
+}
+.looper.slide.up .item.go.active.prev {
+  top: 100%;
+}
+.looper.slide.up.xfade .item {
+  -webkit-transition: 0.5s ease-in-out top, 0.5s ease-in opacity;
+  -moz-transition: 0.5s ease-in-out top, 0.5s ease-in opacity;
+  -o-transition: 0.5s ease-in-out top, 0.5s ease-in opacity;
+  transition: 0.5s ease-in-out top, 0.5s ease-in opacity;
+}
+.looper-control {
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  left: -20px;
+  width: 40px;
+  height: 40px;
+  margin-top: -20px;
+  font-size: 30px;
+  line-height: 40px;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+  background: #333;
+  border: 3px solid #fff;
+  -webkit-border-radius: 23px;
+  -moz-border-radius: 23px;
+  border-radius: 23px;
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+  -webkit-transition: none;
+  -moz-transition: none;
+  -o-transition: none;
+  transition: none;
+}
+.looper-control.right {
+  left: auto;
+  right: -20px;
+}
+.looper-control:hover {
+  color: #fff;
+  text-decoration: none;
+  text-shadow: none;
+  opacity: 0.9;
+  filter: alpha(opacity=90);
+}
+.looper-nav {
+  background: transparent;
+  text-align: center;
+  list-style-type: none;
+  margin: 0;
+}
+.looper-nav > li {
+  display: inline-block;
+  font-size: 36px;
+}
+.looper-nav > li a {
+  color: #049cdb;
+}
+.looper-nav > li a:hover {
+  color: #036690;
+}
+.looper-nav > li.active a,
+.looper-nav > li.active a:hover {
+  color: #036690;
+}
 @font-face {
   font-family: 'glyphs';
   src: url('app://me/assets/fonts/iconfont.woff') format('woff');
@@ -17,6 +254,15 @@
 .glyph-star:before {
   content: '\e903';
 }
+.glyph-home:before {
+  content: '\e904';
+}
+.glyph-arrow-left:before {
+  content: '\25d8';
+}
+.glyph-arrow-right:before {
+  content: '\25cb';
+}
 @font-face {
   font-family: 'LauncherFont';
   src: url('app://me/assets/fonts/LauncherFont.woff2') format('woff2');
@@ -26,10 +272,9 @@
 body {
   font-family: 'LauncherFont';
   background: #212121;
-  color: white;
+  color: #ddd;
   font-size: 0.8em;
   margin: 0;
-  overflow-x: hidden;
 }
 #loading {
   height: 100%;
@@ -39,19 +284,135 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  font-size: 4em;
+  font-size: 2em;
   text-align: center;
   line-height: 100%;
 }
+#loading h1 {
+  font-size: 2em;
+}
 #main {
+  position: relative;
+  top: 100px;
+  right: 0px;
   max-width: 1400px;
   margin-left: auto;
   margin-right: auto;
-  padding-top: 50px;
+}
+#details-wrapper {
+  z-index: 500;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: 'LauncherFont';
+  font-size: 1.2em;
+}
+#details-wrapper span {
+  line-height: 1.4em;
+}
+#details-wrapper #details-nav {
+  width: 94%;
+  margin: 24px auto 24px auto;
+  background-color: #111;
+  font-size: 1.4em;
+  padding: 16px;
+}
+#details-wrapper #details-nav a {
+  color: white;
+  text-decoration: none;
+}
+#details-wrapper #details-nav a span {
+  padding-right: 4px;
+}
+#details-wrapper #details-header {
+  width: 94%;
+  margin: 20px auto 20px auto;
+  padding: 16px;
+  min-height: 128px;
+  background-color: #151515;
+}
+#details-wrapper #details-header img {
+  float: left;
+  width: 128px;
+  height: 128px;
+  margin-right: 16px;
+  box-shadow: 4px 4px 2px black;
+}
+#details-wrapper #details-header .title {
+  display: block;
+  font-size: 2.5em;
+}
+#details-wrapper #details-header .author,
+#details-wrapper #details-header .desc,
+#details-wrapper #details-header .rating {
+  display: block;
+}
+#details-wrapper #details-header .action-wrapper {
+  width: 100%;
+  text-align: right;
+}
+#details-wrapper #details-header .action-wrapper button {
+  font-size: 1.6em;
+  border: 2px solid black;
+  border-radius: 8px;
+  padding: 8px 32px 8px 32px;
+  box-shadow: 2px 2px 2px black;
+  background-color: #c0db74;
+  cursor: pointer;
+}
+#details-wrapper #detailsLooperWrapper {
+  width: 94%;
+  margin: 20px auto 20px auto;
+  padding: 16px;
+}
+#details-wrapper #detailsLooperWrapper .looper .looper-inner > .item img {
+  width: 100%;
+}
+#details-wrapper #detailsLooperWrapper .looper nav > a {
+  text-decoration: none;
+}
+#details-wrapper #detailsLooperWrapper .looper nav > a.looper-control > span {
+  position: relative;
+  top: -1px;
+  left: -1px;
+}
+#details-wrapper #detailsLooperWrapper .looper nav > a.right > span {
+  left: 1px;
+}
+#details-wrapper #detailsLooperWrapper .looper nav > a span.glyph {
+  padding: 0;
+}
+#details-wrapper #detailsLooperWrapper .looper nav .looper-nav li a {
+  text-decoration: none;
+  color: #5c5c5c;
+}
+#details-wrapper #detailsLooperWrapper .looper nav .looper-nav li.active a,
+#details-wrapper #detailsLooperWrapper .looper nav .looper-nav li.active a:hover {
+  color: #e8be52;
+}
+#details-wrapper #details-desc {
+  width: 94%;
+  margin: 0px auto 20px auto;
+  padding: 16px;
+}
+#details-wrapper #details-desc h1,
+#details-wrapper #details-desc hr {
+  margin-left: 0;
+  margin-right: 0;
+}
+#details-wrapper #details-desc .tech-details h1 {
+  margin-top: 48px;
+}
+#details-wrapper #details-desc a {
+  color: #cc960a;
 }
 .categorylist {
   width: 100%;
-  margin: 16px;
+}
+.categorylist h1,
+.categorylist hr {
+  margin-left: 2%;
+  margin-right: 2%;
 }
 .categorylist ul {
   width: 100%;
@@ -84,6 +445,7 @@ body {
   height: 18px;
   text-align: right;
   background: rgba(50, 100, 255, 0.8);
+  pointer-events: none;
 }
 .categorylist ul li .raters {
   position: absolute;
@@ -93,6 +455,7 @@ body {
   width: auto;
   text-align: right;
   background: rgba(255, 100, 50, 0.8);
+  pointer-events: none;
 }
 .categorylist br {
   clear: left;
@@ -105,22 +468,18 @@ body {
   position: fixed;
   top: 0px;
 }
-@media (min-width: 1240px) {
-  #toolbar {
-    height: 50px;
-  }
-}
 #toolbar .nav {
   float: left;
   height: 50px;
-  width: 800px;
+  width: 100%;
   text-align: center;
 }
 #toolbar .nav span {
   float: left;
   padding-left: 24px;
   padding-right: 24px;
-  line-height: 50px;
+  line-height: 25px;
+  height: 50px;
 }
 #toolbar .nav ul {
   width: 100%;
@@ -140,17 +499,24 @@ body {
   text-decoration: none;
   color: white;
 }
-#toolbar .filters {
-  float: right;
+#toolbar .top-row {
   height: 50px;
+  line-height: 50px;
+}
+#toolbar .top-row label {
+  padding-left: 24px;
+  padding-right: 4px;
+}
+#toolbar .top-row .search {
+  float: left;
+  width: auto;
+  text-align: left;
+}
+#toolbar .top-row .filters {
+  float: right;
   width: auto;
   text-align: right;
   padding-right: 24px;
-  line-height: 50px;
-}
-#toolbar .filters label {
-  padding-left: 24px;
-  padding-right: 4px;
 }
 .jumptarget:before {
   content: "";

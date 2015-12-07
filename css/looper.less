@@ -1,0 +1,362 @@
+// Transition mixin
+.transition(@transitionA, @transitionB: X, ...) {
+  @props: ~`"@{arguments}".replace(/[\[\]]|\,\sX/g, '')`;
+  -webkit-transition: @props;
+  -moz-transition: @props;
+  -o-transition: @props;
+  transition: @props;
+}
+
+// Opacity mixin
+.opacity(@opacity) {
+  opacity: @opacity / 100;
+  filter: ~"alpha(opacity=@{opacity})";
+}
+
+// Border Radius mixin
+.border-radius(@radius) {
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+  border-radius: @radius;
+}
+
+// Looper
+@looper-width:                     auto;
+@looper-height:                    auto;
+@looper-transition-speed:          .5s;
+@looper-easing-slide:              ease-in-out;
+@looper-easing-xfade:              ease-in;
+
+// Looper controls
+@looper-control-width:             40px;
+@looper-control-height:            40px;
+@looper-control-left:              -(@looper-control-width / 2);
+@looper-control-right:             -(@looper-control-width / 2);
+@looper-control-size:              30px;
+@looper-control-background-color:  #333;
+@looper-control-border:            3px solid #fff;
+@looper-control-border-radius:     23px;
+@looper-control-color:             #fff;
+@looper-control-color-hover:       @looper-control-color;
+@looper-control-opacity:           50;
+@looper-control-opacity-hover:     90;
+
+// Looper navigation
+@looper-nav-background:            transparent;
+@looper-nav-size:                  36px;
+@looper-nav-link-color:            #049cdb;
+@looper-nav-link-color-hover:      darken(@looper-nav-link-color, 15%);
+@looper-nav-link-color-active:     @looper-nav-link-color-hover;
+
+//
+// Looper
+// --------------------------------------------------
+
+.looper {
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+  width: @looper-width;
+  height: @looper-height;
+
+  &:focus {
+    outline: 0;
+  }
+
+  .looper-inner {
+    overflow: hidden;
+    width: 100%;
+    height: @looper-height;
+    position: relative;
+    z-index: 2;
+  }
+}
+
+.looper {
+
+  .item {
+    display: none;
+    position: relative;
+    z-index: 3;
+
+    &.active,
+    &.next,
+    &.prev {
+      display: block;
+    }
+
+    &.active {
+      top:0;
+      left:0;
+      z-index: 4;
+    }
+
+    // blockify images
+    > img {
+      display: block;
+      line-height: 1;
+    }
+  }
+
+  &.xfade {
+
+    .looper-inner {
+      height: 100%;
+    }
+
+    .item {
+      .transition(@looper-transition-speed @looper-easing-xfade opacity);
+      position: absolute;
+      width: 100%;
+      opacity: 0;
+
+      &.go {
+        opacity: 1;
+      }
+
+      &.active {
+        opacity: 1;
+
+        &.go {
+          opacity: 0;
+        }
+      }
+    }
+  }
+
+  // slide animation
+  &.slide {
+
+    // slide with cross-fade
+    &.xfade .item {
+      .transition(@looper-transition-speed @looper-easing-slide left, @looper-transition-speed @looper-easing-xfade opacity);
+    }
+
+    .item {
+      .transition(@looper-transition-speed @looper-easing-slide left);
+
+      // next/prev slide
+      &.next,
+      &.prev {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+      }
+
+      // slide left (default)
+      &.next {
+        left:100%;
+      }
+      &.prev {
+        left:-100%;
+      }
+
+      &.active.prev,
+      &.active.next {
+        position: relative;
+        left:0;
+      }
+
+      &.go {
+        left:0;
+
+        &.active {
+          left:-100%;
+
+          &.prev {
+            left:100%;
+          }
+        }
+      }
+    }
+
+    // slide right
+    &.right {
+
+      .item {
+        // next slide
+        &.next {
+          left:-100%;
+        }
+
+        // prev slide
+        &.prev {
+          left:100%;
+        }
+
+        &.go {
+          left:0;
+
+          &.active {
+            left:100%;
+
+            &.prev {
+              left:-100%;
+            }
+          }
+        }
+      }
+    }
+
+    // slide down
+    &.down {
+
+      .looper-inner {
+        height: 100%;
+      }
+
+      .item {
+        .transition(@looper-transition-speed @looper-easing-slide top);
+
+        &.next,
+        &.prev {
+          left:0;
+        }
+
+        // next slide
+        &.next {
+          top:-100%;
+        }
+
+        // prev slide
+        &.prev {
+          top:100%;
+        }
+
+        &.go {
+          top:0;
+
+          &.active {
+            top:100%;
+            left:0;
+
+            &.prev {
+              top:-100%;
+            }
+          }
+        }
+      }
+
+      &.xfade .item {
+        .transition(
+          @looper-transition-speed @looper-easing-slide top,
+          @looper-transition-speed @looper-easing-xfade opacity
+        );
+      }
+    }
+
+    // slide up
+    &.up {
+
+      .looper-inner {
+        height: 100%;
+      }
+
+      .item {
+        .transition(@looper-transition-speed @looper-easing-slide top);
+
+        &.next,
+        &.prev {
+          left:0;
+        }
+
+        // next slide
+        &.next {
+          top:100%;
+        }
+
+        // prev slide
+        &.prev {
+          top:-100%;
+        }
+
+        &.go {
+          top:0;
+
+          &.active {
+            top:-100%;
+            left:0;
+
+            &.prev {
+              top:100%;
+            }
+          }
+        }
+      }
+
+      &.xfade .item {
+        .transition(
+          @looper-transition-speed @looper-easing-slide top,
+          @looper-transition-speed @looper-easing-xfade opacity
+        );
+      }
+    }
+  }
+}
+
+// Left/right controls for nav
+// ---------------------------
+
+.looper-control {
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  left: @looper-control-left;
+  width: @looper-control-width;
+  height: @looper-control-height;
+  margin-top: -(@looper-control-height / 2);
+  font-size: @looper-control-size;
+  line-height: @looper-control-height;
+  color: @looper-control-color;
+  text-align: center;
+  cursor:pointer;
+  background: @looper-control-background-color;
+  border: @looper-control-border;
+  .border-radius(@looper-control-border-radius);
+  .opacity(@looper-control-opacity);
+
+  // ensure no transition
+  // may interfere with other transitions
+  .transition(none);
+
+  // right control
+  &.right {
+    left: auto;
+    right: @looper-control-right;
+  }
+
+  // hover state
+  &:hover {
+    color: @looper-control-color-hover;
+    text-decoration: none;
+    text-shadow:none;
+    .opacity(@looper-control-opacity-hover);
+  }
+}
+
+// Looper navigation elements for jumping to individual items
+// ---------------------------------------------------------
+
+// this element is expected to be a list, OL or UL (feel free to adjust)
+.looper-nav {
+  background: @looper-nav-background;
+  text-align: center;
+  list-style-type:none;
+  margin:0;
+  > li {
+    display: inline-block;
+    font-size: @looper-nav-size;
+    a {
+      color: @looper-nav-link-color;
+      &:hover {
+        color: @looper-nav-link-color-hover;
+      }
+    }
+    &.active {
+      a, a:hover {
+        color: @looper-nav-link-color-active;
+      }
+    }
+  }
+}

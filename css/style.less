@@ -1,3 +1,5 @@
+ @import "looper.less";
+ 
  @font-face {
 	font-family: 'glyphs';
 	src: url('app://me/assets/fonts/iconfont.woff') format('woff');
@@ -20,7 +22,19 @@
 
 .glyph-star:before {
 	content: '\e903';
-}	
+}
+
+.glyph-home:before {
+	content: '\e904';
+}
+
+.glyph-arrow-left:before {
+	content: '\25d8';
+}
+
+.glyph-arrow-right:before {
+	content: '\25cb';
+}
  
  @font-face {
 	font-family: 'LauncherFont';
@@ -32,10 +46,9 @@
 body {
 	font-family: 'LauncherFont';
 	background: #212121;
-	color: white;
+	color: #ddd;
 	font-size: 0.8em;
 	margin: 0;
-	overflow-x: hidden;
 }
 
 #loading {
@@ -46,23 +59,160 @@ body {
 	position: fixed;
 	top: 0;
 	left: 0;
-	font-size: 4em;
+	font-size: 2em;
 	text-align: center;
 	line-height: 100%;
+	
+	h1 {
+		font-size: 2em;
+	}
 }
 
 
 #main {
+	position: relative;
+	top: 100px;
+	right: 0px;
 	max-width: 1400px;
 	margin-left: auto;
 	margin-right: auto;
-	padding-top: 50px;
+}
+
+#details-wrapper {
+	z-index: 500;
+	max-width: 1400px;
+	margin-left: auto;
+	margin-right: auto;
+	font-family: 'LauncherFont';
+	font-size: 1.2em;
+	
+	span {
+		line-height: 1.4em;
+	}
+	
+	#details-nav {
+		width: 94%;
+		margin: 24px auto 24px auto;
+		background-color: #111;
+		font-size: 1.4em;
+		padding: 16px;
+		
+		a {
+			color: white;
+			text-decoration: none;
+			span {
+				padding-right: 4px;
+			}
+		}
+	}
+	
+	#details-header {
+		width: 94%;
+		margin: 20px auto 20px auto;
+		padding: 16px;
+		min-height: 128px;
+		background-color: #151515;
+		img {
+			float: left;
+			width: 128px;
+			height: 128px;
+			margin-right: 16px;
+			box-shadow: 4px 4px 2px black;
+		}
+		.title {
+			display: block;
+			font-size: 2.5em;
+		}
+		.author, .desc, .rating {
+			display: block;
+		}
+		.action-wrapper {
+			width: 100%;
+			text-align: right;
+			
+			button {	
+				font-size: 1.6em;
+				border: 2px solid black;
+				border-radius: 8px;
+				padding: 8px 32px 8px 32px;
+				box-shadow: 2px 2px 2px black;
+				background-color: #c0db74;
+				cursor: pointer;	
+			}
+		}
+		
+	}
+	
+	#detailsLooperWrapper {
+		width: 94%;
+		margin: 20px auto 20px auto;
+		padding: 16px;
+		
+		.looper {
+			.looper-inner > .item {
+				img {
+					width: 100%;
+				}
+			}
+			
+			nav {
+				& > a {
+					&.looper-control > span {
+						position: relative;
+						top: -1px;
+						left: -1px;
+					}
+					&.right > span {
+						left: 1px;
+					}
+					text-decoration: none;
+					span.glyph {
+						padding: 0;
+					}
+				}
+				
+				.looper-nav {
+					li {
+						a {
+							text-decoration: none;
+							color: #5c5c5c;
+						}
+						&.active a, &.active a:hover {
+							color: #e8be52;
+						}
+					}
+				}
+				
+			}
+		}	
+	}
+	
+	#details-desc {
+		width: 94%;
+		margin: 0px auto 20px auto;
+		padding: 16px;
+		
+		h1, hr{
+			margin-left: 0;
+			margin-right: 0;
+		}
+		
+		.tech-details h1 {
+			margin-top: 48px;
+		}
+		
+		a {
+			color: #cc960a;
+		}
+	}	
 }
 
 .categorylist {
 	width: 100%;
-	margin: 16px;
-	.wrapper {
+	
+	h1, hr {
+		margin-left: 2%;
+		margin-right: 2%;
 	}
 	
 	ul {
@@ -97,6 +247,7 @@ body {
 				height: 18px;
 				text-align: right;
 				background: rgba(50,100,255,0.8);
+				pointer-events: none;
 			}
 			
 			.raters {
@@ -107,6 +258,7 @@ body {
 				width: auto;
 				text-align: right;
 				background: rgba(255,100,50,0.8);
+				pointer-events: none;
 			}
 		}
 	}
@@ -119,10 +271,6 @@ body {
 	background-color: #111;
 	height: 100px;
 	
-	@media (min-width: 1240px) {
-		height: 50px;
-	}
-	
 	box-shadow: 2px 2px 2px black;
 	width: 100%;
 	position: fixed;
@@ -131,13 +279,14 @@ body {
 	.nav {
 		float: left;
 		height: 50px;
-		width: 800px;
+		width: 100%;
 		text-align: center;
 		span {
 			float: left;
 			padding-left: 24px;
 			padding-right: 24px;
-			line-height: 50px;
+			line-height: 25px;
+			height: 50px;
 		}
 		ul {
 			width: 100%;
@@ -162,19 +311,27 @@ body {
 		}
 	}
 	
-	.filters {
-		float: right;
+	.top-row {
 		height: 50px;
-		width: auto;
-		text-align: right;
-		padding-right: 24px;
 		line-height: 50px;
-		
 		
 		label {
 			padding-left: 24px;
 			padding-right: 4px;
 		}
+		
+		.search {
+			float: left;
+			width: auto;
+			text-align: left;
+		}
+		.filters {
+			float: right;
+			width: auto;
+			text-align: right;
+			padding-right: 24px;
+		}
+		
 	}
 }
 
