@@ -130,12 +130,6 @@
         });
       });
       
-      // Sellers name in details should open a link to their support email in a new browser
-      $('#details-header .author').find('a').on('click', function(){
-        open(this.href);
-        return false;
-      });
-      
       // Builds nav buttons under looper
       var item_count = $('#detailsLooper .looper-inner .item').length;
       for (var i = 0; i < item_count; ++i) {
@@ -160,6 +154,13 @@
       $('#details-wrapper').empty();
       $('#main').show();
       $('#toolbar').show();
+    }
+    
+    var searchForAuthor = function (author) {
+      hideDetails();
+      $('#search-input').val(author);
+      $('#search-for').val('all');
+      applyNonSortFilters();      
     }
     
     // Applys non-sort filters to asset list
@@ -323,7 +324,7 @@
         <div id="details-header">
           <img class="thumb" src="{{thumbnail}}">
           <span class="title">{{title}}</span>
-          <span class="author">by <a href="mailto:{{seller.supportEmail}}?subject=Support for {{title}}">{{seller.name}}</a> - <em>{{ISODateToMonthDayYear effectiveDate}}</em></span>
+          <span class="author">by <a href="#" onclick='searchForAuthor("{{seller.name}}");'>{{seller.name}}</a> - <em>{{ISODateToMonthDayYear effectiveDate}}</em></span>
           <span class="desc">{{description}}</span>
           {{#if rating}}
           <span class="rating">Rated {{rating.average}}/5 by {{rating.count}} customer{{#ifCond rating.count '>' 1}}s{{/ifCond}}.</span>
