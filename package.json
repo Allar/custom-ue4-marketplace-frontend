@@ -2,7 +2,7 @@
   "name": "launcher",
   "main": "login.html",
   "window": {
-    "toolbar": true,
+    "toolbar": false,
     "width": 1280,
     "height": 720,
     "title": "Allar's UE4 Marketplace Frontend",
