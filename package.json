@@ -12,6 +12,7 @@
   "chromium-args": "--enable-file-cookies",
   "dependencies": {
     "request": "latest",
-    "handlebars": "latest"
+    "handlebars": "latest",
+    "open": "latest"
   }
 }
