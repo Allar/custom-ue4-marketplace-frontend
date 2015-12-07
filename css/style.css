@@ -331,6 +331,9 @@ body {
   min-height: 128px;
   background-color: #151515;
 }
+#details-wrapper #details-header a {
+  color: #e8be52;
+}
 #details-wrapper #details-header img {
   float: left;
   width: 128px;
@@ -458,6 +461,9 @@ body {
   background: rgba(255, 100, 50, 0.8);
   pointer-events: none;
 }
+.categorylist ul li .author {
+  display: none;
+}
 .categorylist br {
   clear: left;
 }
@@ -500,6 +506,10 @@ body {
   text-decoration: none;
   color: white;
 }
+#toolbar .nav ul li.sale a {
+  color: #00ff00;
+  text-shadow: 0px 0px 10px #ffff00;
+}
 #toolbar .top-row {
   height: 50px;
   line-height: 50px;
@@ -509,7 +519,6 @@ body {
   padding-right: 4px;
 }
 #toolbar .top-row .search {
-  display: none;
   float: left;
   width: auto;
   text-align: left;

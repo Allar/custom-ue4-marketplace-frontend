@@ -112,6 +112,9 @@ body {
 		padding: 16px;
 		min-height: 128px;
 		background-color: #151515;
+		a {
+			color: #e8be52;
+		}
 		img {
 			float: left;
 			width: 128px;
@@ -154,7 +157,6 @@ body {
 					width: 100%;
 				}
 			}
-			
 			nav {
 				& > a {
 					&.looper-control > span {
@@ -170,7 +172,6 @@ body {
 						padding: 0;
 					}
 				}
-				
 				.looper-nav {
 					li {
 						a {
@@ -182,7 +183,6 @@ body {
 						}
 					}
 				}
-				
 			}
 		}	
 	}
@@ -197,11 +197,9 @@ body {
 			margin-left: 0;
 			margin-right: 0;
 		}
-		
 		.tech-details h1 {
 			margin-top: 48px;
 		}
-		
 		a {
 			color: #cc960a;
 		}
@@ -215,7 +213,6 @@ body {
 		margin-left: 2%;
 		margin-right: 2%;
 	}
-	
 	ul {
 		width: 100%;
 		list-style-type: none;
@@ -236,8 +233,7 @@ body {
 				width: 130px;
 				height: 130px;
 				box-shadow: 2px 2px 2px black;
-			}
-						
+			}		
 			.price {
 				font-size: 1.2em;
 				position: absolute;
@@ -250,7 +246,6 @@ body {
 				background: rgba(50,100,255,0.8);
 				pointer-events: none;
 			}
-			
 			.raters {
 				position: absolute;
 				top: 102px;
@@ -260,6 +255,9 @@ body {
 				text-align: right;
 				background: rgba(255,100,50,0.8);
 				pointer-events: none;
+			}
+			.author {
+				display: none;
 			}
 		}
 	}
@@ -303,10 +301,14 @@ body {
 				padding-right: 24px;
 				line-height: 25px;
 				
-				
 				a {
 					text-decoration: none;
 					color: white;
+				}
+				
+				&.sale a {
+					color: #00ff00;
+					text-shadow: 0px 0px 10px #ffff00;
 				}
 			}
 		}
@@ -320,9 +322,7 @@ body {
 			padding-left: 24px;
 			padding-right: 4px;
 		}
-		
 		.search {
-			display: none;
 			float: left;
 			width: auto;
 			text-align: left;
