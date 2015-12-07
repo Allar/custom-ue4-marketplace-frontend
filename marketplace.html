@@ -107,13 +107,7 @@
       var details_template = Handlebars.compile($('#details-template').html()); 
       $('#details-wrapper').empty();
       $('#details-wrapper').html(details_template(asset)); 
-
-      // Builds nav buttons under looper
-      var item_count = $('#detailsLooper .looper-inner .item').length;
-      for (var i = 0; i < item_count; ++i) {
-        $('#detailsLooper nav ul').append('<li><a href="#detailsLooper" data-looper="to" data-args="' + (i+1) + '">&bull;</a></li>')
-      }
-      
+     
       // Fix Epic's broken ass malformed closing tags i.e. <a></> instead of <a></a>
       // I wrote this using some really hacky logic and the assumption that jQuery's ".parseHTML"
       // results in a 'good enough DOM' where I can extract the tags I need to close. I don't know if this
@@ -142,7 +136,30 @@
           open(this.href);
           return false;
         });
+        
+        
+        // Look for any YouTube long links to put in our looper
+        // https://www.youtube.com/watch?v=wjNtB5g70ic
+        $(this).find(':contains("youtube.com/watch")').each(function(){ 
+          var vid = $(this).html().match(/(?:v=|\/)([\w-]+)(?:&.+)?$/g)[0].substring(2);
+          $('#detailsLooper .looper-inner').prepend('<div class="item"><div class="auto-resizable-iframe"><div><iframe width="1280" height="720" src="https://www.youtube.com/embed/' + vid + '?controls=1&fs=0" frameborder="0"></iframe></div></div></div>');
+        });
+        
+        // @TODO: There is probably a cleaner way to merge this with above
+        // Look for any YouTube short links to put in our looper
+        // https://youtu.be/NoJQLX9dtRs
+        $(this).find(':contains("youtu.be/")').each(function(){
+          var vid = $(this).html().match(/(?:v=|\/)([\w-]+)(?:&.+)?$/g)[0].substring(1);
+          $('#detailsLooper .looper-inner').prepend('<div class="item"><div class="auto-resizable-iframe"><div><iframe width="1280" height="720" src="https://www.youtube.com/embed/' + vid + '?controls=1&fs=0" frameborder="0"></iframe></div></div></div>');
+          console.log(vid);
+        });
       });
+      
+      // Builds nav buttons under looper
+      var item_count = $('#detailsLooper .looper-inner .item').length;
+      for (var i = 0; i < item_count; ++i) {
+        $('#detailsLooper nav ul').append('<li><a href="#detailsLooper" data-looper="to" data-args="' + (i+1) + '">&bull;</a></li>')
+      }
       
       // Initializes looper
       $('#detailsLooper').looper({interval:false, pause:false});
