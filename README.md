@@ -2,9 +2,11 @@
 
 The best description for what this is currently can be found [on my blog](http://allarsblog.com/2015/12/07/Custom-UE4-Marketplace-Frontend/).
 
+It is written in about a day, very badly, by me, someone who doesn't javascript often. I committed many programming sins, see if you can find (and pull-request) them all!
+
 # How Do I Use It?
 
-Coming Soon
+Go to the [Releases](https://github.com/Allar/custom-ue4-marketplace-frontend/releases), download, extract, and run Marketplace.exe.
 
 # How Do I Build It?
 
