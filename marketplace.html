@@ -7,8 +7,14 @@
     <script src="./js/looper.js"></script>
     <script>
     var api = require('./js/api.js');
-    var open = require("open");
     var Handlebars = require('handlebars');
+    var open = require("open");
+    
+    // hack: using the open module 'onclick' was causing issues
+    var openURL = function(url) {
+      open(url);
+      return false;
+    }
     
     // http://stackoverflow.com/questions/8853396/logical-operator-in-a-handlebars-js-if-conditional
     Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
@@ -332,7 +338,7 @@
           <span class="rating">This asset currently has no ratings.</span>
           {{/if}}
           <div class="action-wrapper">
-            <button id="buyasset">{{#if owned}}Owned{{else}}Buy {{price}}{{/if}}</button>
+            <button id="buyasset" onclick="openURL('https://www.unrealengine.com/marketplace/{{this.urlSlug}}');">{{#if this.owned}}Owned{{else if this.free}}FREE{{else}}Buy {{this.price}}{{/if}}</button>
           </div>
         </div>
         <div id="detailsLooperWrapper">
