@@ -1,0 +1,3 @@
+{{#each cats}}
+	<li data-cat="{{this.path}}" {{#ifCond this.path '==' 'assets/onsale'}}class="sale"{{/ifCond}}><a href="#{{this.path}}">{{this.name}}</a></li>
+{{/each}}  

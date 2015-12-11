@@ -13,6 +13,7 @@
   "dependencies": {
     "request": "latest",
     "handlebars": "latest",
-    "open": "latest"
+    "open": "latest",
+    "fs": "latest"
   }
 }

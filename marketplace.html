@@ -6,57 +6,7 @@
     <script src="./js/jquery.serialize-object.min.js"></script>
     <script src="./js/looper.js"></script>
     <script>
-    var api = require('./js/api.js');
-    var Handlebars = require('handlebars');
-    var open = require("open");
-    
-    // hack: using the open module 'onclick' was causing issues
-    var openURL = function(url) {
-      open(url);
-      return false;
-    }
-    
-    // http://stackoverflow.com/questions/8853396/logical-operator-in-a-handlebars-js-if-conditional
-    Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
-      switch (operator) {
-        case '==':
-          return (v1 == v2) ? options.fn(this) : options.inverse(this);
-        case '===':
-          return (v1 === v2) ? options.fn(this) : options.inverse(this);
-        case '<':
-          return (v1 < v2) ? options.fn(this) : options.inverse(this);
-        case '<=':
-          return (v1 <= v2) ? options.fn(this) : options.inverse(this);
-        case '>':
-          return (v1 > v2) ? options.fn(this) : options.inverse(this);
-        case '>=':
-          return (v1 >= v2) ? options.fn(this) : options.inverse(this);
-        case '&&':
-          return (v1 && v2) ? options.fn(this) : options.inverse(this);
-        case '||':
-          return (v1 || v2) ? options.fn(this) : options.inverse(this);
-        default:
-          return options.inverse(this);
-      }
-    });
-    
-    Handlebars.registerHelper('ISODateToUnix', function(ISODate) {
-        return Date.parse(ISODate);
-    });
-    
-    Handlebars.registerHelper('ISODateToMonthDayYear', function(ISODate) {
-        return (new Date(ISODate).toLocaleDateString(window.navigator.language, {month: 'long', day: 'numeric', year: 'numeric'}));
-    });
-    
-    global.assetCollection = [];
-    
-    var startFetchCheck = function() {
-      if (global.fetching == false) {
-        onAllAssetsFetched();
-      } else {
-        window.setTimeout(startFetchCheck, 1000);
-      }
-    }
+    var common = require('./js/common.js');
     
     var sorts = {
       asset_sort_alphabetically: function(a, b) { return ($(b).children('.title').first().text() < $(a).children('.title').first().text()) ? 1 : -1; },
@@ -67,92 +17,6 @@
       asset_sort_rating_low: function(a, b) { return ($(b).data('rating') < $(a).data('rating')) ? 1 : -1; },
       asset_sort_date_recent: function(a, b) { return ($(b).data('effectivedate') > $(a).data('effectivedate')) ? 1 : -1; },
       asset_sort_date_old: function(a, b) { return ($(b).data('effectivedate') < $(a).data('effectivedate')) ? 1 : -1; },
-    }
-        
-    // Takes a 'HTML string' and returns proper HTML
-    // https://css-tricks.com/snippets/javascript/unescape-html-in-js/
-    function htmlDecode(input){
-      var e = document.createElement('div');
-      e.innerHTML = input;
-      return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
-    }
-    
-    // Given a category path and an asset's id, we generate a details page for it and show it
-    // It is important to note here that you should be using paths from the category fetches and
-    // not using an asset's "categories" array. There are major mismatches in an asset's "categories" array
-    // that make that data simply unusable, i.e. official category 'assets/characters-animations' but an asset
-    // may list itself as 'assets/characters' instead.
-    var showDetailsFor = function(path, assetid) {
-      console.log("Showing details for " + path + " -> " + assetid);
-      var asset = $.grep(global.marketplace[path].assets, function(e){ return e.id === assetid; })[0];
-      var details_template = Handlebars.compile($('#details-template').html()); 
-      $('#details-wrapper').empty();
-      $('#details-wrapper').html(details_template(asset)); 
-     
-      // Fix Epic's broken ass malformed closing tags i.e. <a></> instead of <a></a>
-      // I wrote this using some really hacky logic and the assumption that jQuery's ".parseHTML"
-      // results in a 'good enough DOM' where I can extract the tags I need to close. I don't know if this
-      // fixes every case, but it appears to be 'good enough' for now.
-      // It also replaces new lines with <br> and adds <hr> to any </h1>
-      // It then takes the fixed HTML and makes all links open in a new browser
-      $('.fix-html').each(function(index) {
-        var fixed = $(this).html();
-        fixed = fixed.replace(/&lt;/g, '<');
-        fixed = fixed.replace(/&gt;/g, '>');
-        var badTagIndex = fixed.indexOf('</>');
-        while (badTagIndex != -1) {
-          var badDOM = $.parseHTML(fixed.substring(0, badTagIndex));
-          var elementTag = $(badDOM).last().get(0).tagName.toLowerCase();
-          fixed = fixed.replace('</>', '</' + elementTag + '>')
-          badTagIndex = fixed.indexOf('</>');
-        }
-        fixed = fixed.replace(/(?:\r\n|\r|\n)/g, "<br>"); // Makes newlines pretty
-        fixed = fixed.replace(/<\/h1>/g, "</h1><hr>"); // Adds <hr> to <h1> i.e. Contact and Support
-        fixed = fixed.replace(/<br><br><h1>/g, "<br><h1>"); // Removes extra newline before <h1>'s
-        fixed = fixed.replace(/<hr><br>/g, "<hr>"); // Removes extra newline after <h1>'s        
-        $(this).html(fixed);
-        
-        // All links in these descriptions should open in a new browser
-        $(this).find('a').on('click', function(){
-          open(this.href);
-          return false;
-        });
-        
-        
-        // Look for any YouTube long links to put in our looper
-        // https://www.youtube.com/watch?v=wjNtB5g70ic
-        $(this).find(':contains("youtube.com/watch")').each(function(){ 
-          var vid = $(this).html().match(/(?:v=|\/)([\w-]+)(?:&.+)?$/g)[0].substring(2);
-          $('#detailsLooper .looper-inner').prepend('<div class="item"><div class="auto-resizable-iframe"><div><iframe width="1280" height="720" src="https://www.youtube.com/embed/' + vid + '?controls=1&fs=0" frameborder="0"></iframe></div></div></div>');
-        });
-        
-        // @TODO: There is probably a cleaner way to merge this with above
-        // Look for any YouTube short links to put in our looper
-        // https://youtu.be/NoJQLX9dtRs
-        $(this).find(':contains("youtu.be/")').each(function(){
-          var vid = $(this).html().match(/(?:v=|\/)([\w-]+)(?:&.+)?$/g)[0].substring(1);
-          $('#detailsLooper .looper-inner').prepend('<div class="item"><div class="auto-resizable-iframe"><div><iframe width="1280" height="720" src="https://www.youtube.com/embed/' + vid + '?controls=1&fs=0" frameborder="0"></iframe></div></div></div>');
-          console.log(vid);
-        });
-      });
-      
-      // Builds nav buttons under looper
-      var item_count = $('#detailsLooper .looper-inner .item').length;
-      for (var i = 0; i < item_count; ++i) {
-        $('#detailsLooper nav ul').append('<li><a href="#detailsLooper" data-looper="to" data-args="' + (i+1) + '">&bull;</a></li>')
-      }
-      
-      // Initializes looper
-      $('#detailsLooper').looper({interval:false, pause:false});
-      
-      // Updates nav buttons on looper change
-      $('#detailsLooper').on('shown', function(e) {
-        $('nav ul li', this).removeClass('active').eq(e.relatedIndex).addClass('active');
-      });
-      
-      $('#details-wrapper').show();
-      $('#main').hide();
-      $('#toolbar').hide();
     }
     
     var hideDetails = function() {
@@ -225,161 +89,12 @@
         }
       });
     }
-    
-    // When page is loaded and ready for javascript...
-    $(document).ready(function() {
-      // Add case-insensitive 'Contains' to jQuery
-      jQuery.expr[':'].Contains = function(a,i,m){
-          return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase())>=0;
-      };
-
-      global.window.nwDispatcher.requireNwGui().Window.get().title = "Allar's UE4 Marketplace Frontend";
-      global.$ = $;
-      api.getAllAssets();
-      
-      // Sort filter changed handler
-      $('#sortby').change(function() {
-        $(".categorylist ul").each(function(index, element) {
-          $(element).find('li').sort(sorts[$('#sortby').val()]).appendTo(element);
-        });
-      });
-            
-      // Owned filter changed handler
-      $('#owned-filter').change(applyNonSortFilters);
-      
-      // Search for filter changed handler
-      $('#search-for').change(applyNonSortFilters);
-      
-      // Search filter changed handler
-      $('#search-input').on("input", applyNonSortFilters);
-      
-      // Hide details on load
-      $('#details-wrapper').hide();    
-      
-      startFetchCheck();       
-    });
-    
-    // Called after every asset for the marketplace has had its JSON data loaded  
-    var onAllAssetsFetched = function() {
-      $("#loading").hide();
-      
-      // Useful for looking at Epic's asset JSON data during development
-      console.log("Marketplace Data:");
-      console.log(global.marketplace);
-      
-      for (var category in global.marketplace) {
-        var cat_context = {path: category, info: global.marketplace[category]};
-        var cat_template = Handlebars.compile($('#category-template').html());         
-        $('#categories').append(cat_template(cat_context));
-      }
-      
-      //@todo: make this data storage... better and less redundant
-      var nav_context = {cats: global.categories}
-      var nav_template = Handlebars.compile($('#nav-template').html());  
-      $('#navlist').append(nav_template(nav_context));
-      
-      // Default to sort by most recent
-      $('#sortby').val('asset_sort_date_recent');
-      $(".categorylist ul").each(function(index, element) {
-        $(element).find('li').sort(sorts[$('#sortby').val()]).appendTo(element);
-      });
-      
-      applyNonSortFilters();
-    }
     </script>
     
-    <!-- Template for showing a category and all the assets in said category -->
-    <script id="category-template" type="text/x-handlebars-template">
-      <div id="{{path}}" class="categorylist jumptarget">
-        <h1>{{info.name}}</h1>
-        <hr>
-        <div class="wrapper">
-          <ul>
-            {{#each info.assets}}
-            <li id="{{this.id}}" class="asset" data-effectivedate={{ISODateToUnix this.effectiveDate}} data-owned={{this.owned}} data-price={{this.priceValue}} data-rating={{#if this.rating}}{{this.rating.average}}{{else}}0{{/if}} data-raters={{#if this.rating}}{{this.rating.count}}{{else}}0{{/if}}>
-              <a href="#" onclick="showDetailsFor('{{../path}}','{{this.id}}')"><img class="thumb" src={{this.thumbnail}}></a>
-              <span class="title">{{this.title}}</span>
-              <span class="author">{{this.seller.name}}</span>
-              {{#if this.rating}}
-              <span class="raters">{{this.rating.average}}/5 [{{this.rating.count}}]<span class="glyph glyph-star"></span></span>
-              {{else}}
-              <span class="raters">Unrated</span>
-              {{/if}}
-              <span class="price">{{#if this.owned}}Owned{{else if this.free}}FREE{{else}}{{this.price}}{{/if}}</span>
-            </li>
-            {{/each}}
-          </ul>
-          <br/>
-        </div>
-      </div><!-- {{category_path}} -->
-    </script>
+    <script src="./js/marketplace.js"></script>
     
-    <!-- Template for a 'jump to category' nav link list -->
-    <script id="nav-template" type="text/x-handlebars-template">
-      {{#each cats}}
-        <li data-cat="{{this.path}}" {{#ifCond this.path '==' 'assets/onsale'}}class="sale"{{/ifCond}}><a href="#{{this.path}}">{{this.name}}</a></li>
-      {{/each}}  
-    </script>
-    
-    <!-- Template for the asset details page -->
-    <script id="details-template" type="text/x-handlebars-template">
-      <div id="details">
-        <div id="details-nav">
-          <a href="#" onclick='hideDetails()'><span class="glyph glyph-home"></span>Back</a>
-        </div>
-        <div id="details-header">
-          <img class="thumb" src="{{thumbnail}}">
-          <span class="title">{{title}}</span>
-          <span class="author">by <a href="#" onclick='searchForAuthor("{{seller.name}}");'>{{seller.name}}</a> - <em>{{ISODateToMonthDayYear effectiveDate}}</em></span>
-          <span class="desc">{{description}}</span>
-          {{#if rating}}
-          <span class="rating">Rated {{rating.average}}/5 by {{rating.count}} customer{{#ifCond rating.count '>' 1}}s{{/ifCond}}.</span>
-          {{else}}
-          <span class="rating">This asset currently has no ratings.</span>
-          {{/if}}
-          <div class="action-wrapper">
-            <button id="buyasset" onclick="openURL('https://www.unrealengine.com/marketplace/{{this.urlSlug}}');">{{#if this.owned}}Owned{{else if this.free}}FREE{{else}}Buy {{this.price}}{{/if}}</button>
-          </div>
-        </div>
-        <div id="detailsLooperWrapper">
-          <div id="detailsLooper" class="looper slide">
-            <div class="looper-inner">
-            {{#each keyImages}}
-            {{#ifCond this.type '==' 'Screenshot'}}
-              <div class="item">
-                <img src="{{this.url}}" alt="">
-              </div>
-            {{else}}
-            {{/ifCond}}
-            {{/each}}
-            </div>
-            <nav>
-              <a class="looper-control" data-looper="prev" href="#detailsLooper">
-                <span class="glyph glyph-arrow-left"></span>
-              </a>
-              <a class="looper-control right" data-looper="next" href="#detailsLooper">
-                <span class="glyph glyph-arrow-right"></span>
-              </a>
-              <ul class="looper-nav">
-              </ul>
-            </nav>
-          </div>
-        </div>
-        <div id="details-desc">
-          <div class="desc">
-            <h1>Description</h1>
-            <hr/>
-            <div class="desc-text fix-html">{{longDescription}}</div>
-          </div>
-          <div class="tech-details">
-            <h1>Technical Details</h1>
-            <hr/>
-            <div class="tech-details-text fix-html">{{technicalDetails}}</div>
-          </div>
-      </div> 
-    </script>
   </head>
-  <!-- begin 'static' html -->
+  
   <body>
     <div id="loading">
         <h1>Fetching All Assets...</h1>
@@ -405,7 +120,6 @@
           </select>
           <label>Search:</label>
           <input id="search-input" type="search"></input>
-          
         </div>
         <div class="filters">
           <label>Owned Assets:</label>

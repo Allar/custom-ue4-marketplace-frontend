@@ -1,0 +1,11 @@
+<li id="{{asset.id}}" class="asset" data-effectivedate={{ISODateToUnix asset.effectiveDate}} data-owned={{asset.owned}} data-price={{asset.priceValue}} data-rating={{#if asset.rating}}{{asset.rating.average}}{{else}}0{{/if}} data-raters={{#if asset.rating}}{{asset.rating.count}}{{else}}0{{/if}}>
+	<a href="#" onclick="showDetailsFor('{{cat_path}}', '{{asset.id}}')"><img class="thumb" src={{asset.thumbnail}}></a>
+	<span class="title">{{asset.title}}</span>
+	<span class="author">{{asset.seller.name}}</span>
+	{{#if asset.rating}}
+	<span class="raters">{{asset.rating.average}}/5 [{{asset.rating.count}}]<span class="glyph glyph-star"></span></span>
+	{{else}}
+	<span class="raters">Unrated</span>
+	{{/if}}
+	<span class="price">{{#if asset.owned}}Owned{{else if asset.free}}FREE{{else}}{{asset.price}}{{/if}}</span>
+</li>

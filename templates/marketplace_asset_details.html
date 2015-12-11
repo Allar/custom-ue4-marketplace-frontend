@@ -1,0 +1,55 @@
+<div id="details">
+	<div id="details-nav">
+		<a href="#" onclick='hideDetails()'><span class="glyph glyph-home"></span>Back</a>
+	</div>
+	<div id="details-header">
+		<img class="thumb" src="{{thumbnail}}">
+		<span class="title">{{title}}</span>
+		<span class="author">by <a href="#" onclick='searchForAuthor("{{seller.name}}");'>{{seller.name}}</a> - <em>{{ISODateToMonthDayYear effectiveDate}}</em></span>
+		<span class="desc">{{description}}</span>
+		{{#if rating}}
+		<span class="rating">Rated {{rating.average}}/5 by {{rating.count}} customer{{#ifCond rating.count '>' 1}}s{{/ifCond}}.</span>
+		{{else}}
+		<span class="rating">This asset currently has no ratings.</span>
+		{{/if}}
+		<div class="action-wrapper">
+		<button id="buyasset" onclick="openURL('https://www.unrealengine.com/marketplace/{{this.urlSlug}}');">{{#if this.owned}}Owned{{else if this.free}}FREE{{else}}Buy {{this.price}}{{/if}}</button>
+		</div>
+	</div>
+	<div id="detailsLooperWrapper">
+		<div id="detailsLooper" class="looper slide">
+		<div class="looper-inner">
+		{{#each keyImages}}
+		{{#ifCond this.type '==' 'Screenshot'}}
+			<div class="item">
+			<img src="{{this.url}}" alt="">
+			</div>
+		{{else}}
+		{{/ifCond}}
+		{{/each}}
+		</div>
+		<nav>
+			<a class="looper-control" data-looper="prev" href="#detailsLooper">
+			<span class="glyph glyph-arrow-left"></span>
+			</a>
+			<a class="looper-control right" data-looper="next" href="#detailsLooper">
+			<span class="glyph glyph-arrow-right"></span>
+			</a>
+			<ul class="looper-nav">
+			</ul>
+		</nav>
+		</div>
+	</div>
+	<div id="details-desc">
+		<div class="desc">
+		<h1>Description</h1>
+		<hr/>
+		<div class="desc-text fix-html">{{longDescription}}</div>
+		</div>
+		<div class="tech-details">
+		<h1>Technical Details</h1>
+		<hr/>
+		<div class="tech-details-text fix-html">{{technicalDetails}}</div>
+		</div>
+	</div>
+</div>
